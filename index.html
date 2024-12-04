@@ -25,8 +25,8 @@
             text-align: center;
             padding: 20px;
             position: relative;
-			margin-top: 0;
-			padding-top: 0;
+            margin-top: 0;
+            padding-top: 0;
         }
 
         .clock {
@@ -74,7 +74,6 @@
             display: inline;
         }
 
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -138,7 +137,6 @@
             margin: 10px 0;
         }
 
-        /* Blur effect overlay */
         .blur-overlay {
             display: none;
             position: fixed;
@@ -156,7 +154,6 @@
             opacity: 1;
         }
 
-        /* Detailed Weather Widget Styles */
         .detailed-weather {
             font-size: 1.5rem;
             padding: 20px;
@@ -285,7 +282,6 @@
         </div>
     </div>
 
-    <!-- Timezone Modal -->
     <div id="timezoneModal" class="modal">
         <div class="modal-content">
             <button class="close" id="closeModal">✕</button>
@@ -296,7 +292,6 @@
         </div>
     </div>
 
-    <!-- Weather Modal -->
     <div id="weatherModal" class="modal">
         <div class="modal-content">
             <button class="close" id="closeWeatherModal">✕</button>
@@ -306,11 +301,9 @@
         </div>
     </div>
 
-    <!-- Blur Effect Overlay -->
     <div class="blur-overlay" id="blurOverlay"></div>
 
     <script>
-        // Weather conditions object
         const weatherConditions = {
             0: { description: 'Clear Sky', icon: '☀️' },
             1: { description: 'Mainly Clear', icon: '🌤️' },
@@ -342,7 +335,6 @@
             99: { description: 'Heavy Thunderstorm with Hail', icon: '🌩️' }
         };
 
-        // Clock functions
         function updateClockAndDate() {
             const clockElement = document.getElementById('clock');
             const dateElement = document.getElementById('date');
@@ -364,13 +356,11 @@ function updateTimezones() {
     const tokyoTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
     const sydneyTime = new Date(now.toLocaleString("en-US", { timeZone: "Australia/Sydney" }));
 
-    // 24-hour format remains as is with getHours()
     document.getElementById('ny-time').textContent = `New York: ${String(nyTime.getHours()).padStart(2, '0')}:${String(nyTime.getMinutes()).padStart(2, '0')}:${String(nyTime.getSeconds()).padStart(2, '0')}`;
     document.getElementById('tokyo-time').textContent = `Tokyo: ${String(tokyoTime.getHours()).padStart(2, '0')}:${String(tokyoTime.getMinutes()).padStart(2, '0')}:${String(tokyoTime.getSeconds()).padStart(2, '0')}`;
     document.getElementById('sydney-time').textContent = `Sydney: ${String(sydneyTime.getHours()).padStart(2, '0')}:${String(sydneyTime.getMinutes()).padStart(2, '0')}:${String(sydneyTime.getSeconds()).padStart(2, '0')}`;
 }
 
-        // Weather functions
         async function fetchLocationAndWeather() {
             try {
                 const locationResponse = await fetch('https://ipapi.co/json/');
@@ -460,7 +450,6 @@ const weatherInfo = weatherConditions[weatherData.current.weathercode] || { desc
                 })
                 .filter(Boolean);
 
-            // Determine background color based on weather
             const hour = new Date().getHours();
             const isDaytime = hour >= 6 && hour <= 18;
             let backgroundColor = isDaytime ? '#2F4F4F' : '#0C0C0C';
@@ -470,7 +459,6 @@ const weatherInfo = weatherConditions[weatherData.current.weathercode] || { desc
                 case 1: backgroundColor = isDaytime ? '#3E474D' : '#0C0C0C'; break;
                 case 2: backgroundColor = isDaytime ? '#4E5A61' : '#0C0C0C'; break;
                 case 3: backgroundColor = isDaytime ? '#36454F' : '#0C0C0C'; break;
-                // Add more cases as needed
             }
 
             document.getElementById('detailedWeather').style.backgroundColor = backgroundColor;
@@ -518,7 +506,6 @@ const weatherInfo = weatherConditions[weatherData.current.weathercode] || { desc
             `;
         }
 
-        // Event Listeners and Initialization
         const clockElement = document.getElementById('clock');
         const weatherWidget = document.getElementById('weather');
         const timezoneModal = document.getElementById('timezoneModal');
@@ -564,14 +551,12 @@ const weatherInfo = weatherConditions[weatherData.current.weathercode] || { desc
             }, 300);
         });
 
-        // Initialize
         setInterval(updateClockAndDate, 1000);
         setInterval(updateTimezones, 1000);
         updateClockAndDate();
         updateTimezones();
         updateSmallWeather();
 
-// Device and Browser Compatibility Check
 function showPopup(message) {
     const popup = document.createElement('div');
     popup.style.position = 'fixed';
@@ -616,7 +601,6 @@ function checkDeviceCompatibility() {
     }
 }
 
-// Run compatibility check after initialization
 checkDeviceCompatibility();
     </script>
 </body>
