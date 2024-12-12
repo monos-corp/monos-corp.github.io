@@ -756,19 +756,7 @@ async function fetchLocationAndWeather() {
         }, 60000);
         
         function checkDeviceCompatibility() {
-            const supportedBrowsers = ['Chrome', 'Firefox', 'Safari'];
-            const supportedDevices = ['Android', 'MacIntel', 'ChromeOS', 'iPhone', 'iPad', 'Linux'];
-
-            const browserName = navigator.userAgent.match(/(Chrome|Firefox|Safari)/)?.[1];
-            const deviceType = navigator.platform;
             const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-            const isSupportedBrowser = supportedBrowsers.includes(browserName);
-            const isSupportedDevice = supportedDevices.some(device => deviceType.includes(device));
-
-            if (!isSupportedBrowser || !isSupportedDevice) {
-                showPopup('Gurasuraisu is not supported on your current browser or device. Check Finder for supported browsers and devices');
-            }
 
             if (!isTouchDevice) {
                 showPopup('For optimal experience, use a touchscreen device');
