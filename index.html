@@ -754,6 +754,19 @@ async function fetchLocationAndWeather() {
                 displayDetailedWeather();
             }
         }, 60000);
+
+        function goFullscreen() {
+            const element = document.documentElement;
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) { // Firefox
+                element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { // IE/Edge
+                element.msRequestFullscreen();
+            }
+        }
         
         function checkDeviceCompatibility() {
             const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -895,7 +908,8 @@ async function fetchLocationAndWeather() {
             }
         });
         
-checkDeviceCompatibility();
+        checkDeviceCompatibility();
+        goFullscreen();
     </script>
 </body>
 </html>
