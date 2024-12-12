@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gurasuraisu Mocha</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -291,6 +292,76 @@
             user-select: none;
         }
 
+        .search-container {
+            position: fixed;
+            top: 10px;
+            left: 0;
+            right: 0;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 10;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 60px;
+            border: none;
+            border-radius: 30px;
+            background-color: rgba(102, 102, 102, 0.8);
+            color: #f9f9f9;
+            font-size: 1.2rem;
+            outline: none;
+            transition: background-color 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .search-input::placeholder {
+            color: #bbb;
+            text-align: center;
+        }
+        
+        .search-input:focus {
+            background-color: rgba(85, 85, 85, 0.8);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 35px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #bbb;
+            font-size: 1.5rem;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+        
+        .autocomplete-suggestions {
+            position: absolute;
+            right: -5px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px; /* Space between suggestions */
+            padding: 10px 0;
+            background-color: rgba(102, 102, 102, 0.9);
+            color: white;
+            border-radius: 10px;
+            z-index: 10;
+        }
+        
+        .autocomplete-suggestion {
+            padding: 10px;
+            cursor: pointer;
+            white-space: nowrap; /* Prevent breaking into multiple lines */
+        }
+        
+        .autocomplete-suggestion:hover {
+            background-color: rgba(85, 85, 85, 0.9);
+        }
+        
         @media (max-width: 768px) {
             .clock {
                 font-size: 6rem;
@@ -326,7 +397,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="clock" id="clock">00:00:00</div>
+        <div class="clock" id="clock">Gurasuraisu</div>
         <div class="info">
             <div class="date" id="date"></div>
             <div class="weather-widget" id="weather">
@@ -336,6 +407,13 @@
         </div>
     </div>
 
+    <div class="search-container">
+         <span id="search-icon" class="material-symbols-outlined search-icon">search</span>
+            <input type="text" class="search-input" id="search-input" placeholder="Search">
+            <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+        </div>
+    </div>
+    
     <div id="timezoneModal" class="modal">
         <div class="modal-content">
             <button class="close" id="closeModal">✕</button>
@@ -697,6 +775,140 @@ async function fetchLocationAndWeather() {
             }
         }
 
+        const searchInput = document.getElementById('search-input');
+        const searchIcon = document.getElementById('search-icon');
+        const autocompleteSuggestions = document.getElementById('autocomplete-suggestions');
+
+        const appLinks = {
+            "youtube": "https://youtube.com",
+            "yt": "https://youtube.com",
+            "drive": "https://drive.google.com",
+            "calendar": "https://calendar.google.com",
+            "cal": "https://calendar.google.com",
+            "docs": "https://docs.google.com",
+            "photos": "https://www.icloud.com/photos",
+            "notes": "https://keep.google.com",
+            "keep": "https://keep.google.com",
+            "calculator": "https://calculator.apps.chrome",
+            "music": "https://music.apple.com",
+            "notion": "https://notion.so",
+            "find my": "https://www.icloud.com/find",
+            "tips": "https://sites.google.com/southborough.kingston.sch.uk/rice/applications-gurasuraisu/gurasuraisu-tips",
+            "settings": "https://sites.google.com/southborough.kingston.sch.uk/rice/applications-gurasuraisu/gurasuraisu-settings"
+        };
+
+            // Fuzzy search function to find the best match for app names
+    function fuzzySearch(query, appList) {
+        const threshold = 0.5;
+        let bestMatch = null;
+        let highestScore = 0;
+
+        function similarity(s1, s2) {
+            let longer = s1;
+            let shorter = s2;
+            if (s1.length < s2.length) {
+                longer = s2;
+                shorter = s1;
+            }
+            const longerLength = longer.length;
+            if (longerLength === 0) return 1.0;
+            const editDistance = getEditDistance(longer, shorter);
+            return (longerLength - editDistance) / parseFloat(longerLength);
+        }
+
+        function getEditDistance(s1, s2) {
+            const costs = [];
+            for (let i = 0; i <= s1.length; i++) {
+                let lastValue = i;
+                for (let j = 0; j <= s2.length; j++) {
+                    if (i === 0) costs[j] = j;
+                    else {
+                        if (j > 0) {
+                            let newValue = costs[j - 1];
+                            if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+                                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                            }
+                            costs[j - 1] = lastValue;
+                            lastValue = newValue;
+                        }
+                    }
+                }
+                if (i > 0) costs[s2.length] = lastValue;
+            }
+            return costs[s2.length];
+        }
+
+        Object.keys(appList).forEach(app => {
+            const score = similarity(query.toLowerCase(), app.toLowerCase());
+            if (score > highestScore && score >= threshold) {
+                highestScore = score;
+                bestMatch = app;
+            }
+        });
+
+        return bestMatch;
+    }
+
+                function updateSearchIcon(query) {
+            const firstWord = query.split(' ')[0].toLowerCase();
+            if (firstWord === "how" || firstWord === "help" || firstWord === "ai" || firstWord === "why") {
+                searchIcon.textContent = 'forum';
+            } else {
+                searchIcon.textContent = 'search';
+            }
+        }
+
+        function handleAppRedirect(query) {
+            const bestMatch = fuzzySearch(query, appLinks);
+            if (bestMatch) {
+                const appLink = appLinks[bestMatch];
+                window.open(appLink, '_blank');
+                return true;
+            }
+            return false;
+        }
+
+        function showAutocomplete(query) {
+            autocompleteSuggestions.innerHTML = '';
+
+            if (query.length > 0) {
+                const matchedApps = Object.keys(appLinks).filter(app => app.toLowerCase().startsWith(query.toLowerCase()));
+                matchedApps.forEach(app => {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.classList.add('autocomplete-suggestion');
+                    suggestionItem.textContent = app;
+                    suggestionItem.addEventListener('click', () => {
+                        searchInput.value = app;
+                        autocompleteSuggestions.innerHTML = '';
+                    });
+                    autocompleteSuggestions.appendChild(suggestionItem);
+                });
+            }
+        }
+
+        searchInput.addEventListener('input', (event) => {
+            const query = searchInput.value.trim();
+            updateSearchIcon(query);
+            showAutocomplete(query);
+        });
+
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const query = searchInput.value.trim();
+                updateSearchIcon(query);
+                if (handleAppRedirect(query)) {
+                    return;
+                }
+                const firstWord = query.split(' ')[0].toLowerCase();
+                if (firstWord === "how" || firstWord === "help" || firstWord === "ai" || firstWord === "why") {
+                    const bingUrl = `https://www.bing.com/search?showconv=1&sendquery=1&q=${encodeURIComponent(query)}`;
+                    window.open(bingUrl, '_blank');
+                } else if (query) {
+                    window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+                }
+            }
+        });
+        
 checkDeviceCompatibility();
     </script>
 </body>
