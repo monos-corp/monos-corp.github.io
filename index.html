@@ -18,7 +18,6 @@
             transition: filter 0.3s ease;
             color: #f9f9f9;
             overflow: hidden;
-
         }
 
         .container {
@@ -79,7 +78,7 @@
             position: fixed;
             z-index: 200;
             left: 50%;
-            top: 0%;
+
             transform: translate(-50%) scale(0.9);
             width: 80%;
             max-width: 800px;
@@ -88,10 +87,29 @@
             padding: 40px;
             border-radius: 50px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
             opacity: 0;
             transition: transform 0.3s ease, opacity 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
         }
+        
+.modal, .modal-content {
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: rgba(255,255,255,0.3) transparent; /* For Firefox */
+}
+
+.modal::-webkit-scrollbar, .modal-content::-webkit-scrollbar {
+    width: 8px; /* Thin scrollbar */
+}
+
+.modal::-webkit-scrollbar-track, .modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal::-webkit-scrollbar-thumb, .modal-content::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.3);
+    border-radius: 4px;
+}
 
         .modal.show {
             transform: translate(-50%) scale(1);
@@ -103,14 +121,18 @@
             position: relative;
         }
 
-        #weatherModal .modal-content {
-            text-align: left;
-            padding: 20px 0;
+        #weatherModal.modal {
+            background-color: transparent;
+            box-shadow: none;
         }
 
-        #weatherModal .weather-widget {
-            margin: 0;
-            display: block;
+        #weatherModal .modal-content {
+            background-color: transparent;
+            padding: 10px 0;
+        }
+
+        #weatherModal .detailed-weather {
+            background-color: rgba(51, 51, 51, 0.7); /* Keeps the content background */
         }
 
         .close {
@@ -361,12 +383,26 @@ function updateTimezones() {
     document.getElementById('sydney-time').textContent = `Sydney: ${String(sydneyTime.getHours()).padStart(2, '0')}:${String(sydneyTime.getMinutes()).padStart(2, '0')}:${String(sydneyTime.getSeconds()).padStart(2, '0')}`;
 }
 
-        async function fetchLocationAndWeather() {
+async function fetchLocationAndWeather() {
+    return new Promise((resolve, reject) => {
+        // Use browser's geolocation
+        navigator.geolocation.getCurrentPosition(async (position) => {
             try {
-                const locationResponse = await fetch('https://ipapi.co/json/');
-                const locationData = await locationResponse.json();
+                const { latitude, longitude } = position.coords;
 
-                const { latitude, longitude, city } = locationData;
+                // Attempt to get city name using reverse geocoding
+                const geocodingUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+                let city = 'Unknown Location';
+                try {
+                    const geocodingResponse = await fetch(geocodingUrl);
+                    const geocodingData = await geocodingResponse.json();
+                    city = geocodingData.address.city || 
+                           geocodingData.address.town || 
+                           geocodingData.address.village || 
+                           'Unknown Location';
+                } catch (geocodingError) {
+                    console.warn('Could not retrieve city name', geocodingError);
+                }
 
                 const currentWeatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`;
                 const dailyForecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,weathercode&timezone=Europe/London`;
@@ -382,17 +418,26 @@ function updateTimezones() {
                 const dailyForecastData = await dailyResponse.json();
                 const hourlyForecastData = await hourlyResponse.json();
 
-                return {
+                resolve({
                     city,
                     current: currentWeatherData.current_weather,
                     dailyForecast: dailyForecastData.daily,
                     hourlyForecast: hourlyForecastData.hourly
-                };
+                });
             } catch (error) {
                 console.error('Error fetching weather data:', error);
-                return null;
+                reject(error);
             }
-        }
+        }, (error) => {
+            console.error('Geolocation error:', error);
+            reject(error);
+        }, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        });
+    });
+}
 
         function getDayOfWeek(dateString) {
             const date = new Date(dateString);
@@ -411,7 +456,7 @@ function updateTimezones() {
 
                 const temperatureElement = document.getElementById('temperature');
                 const weatherIconElement = document.getElementById('weather-icon');
-const weatherInfo = weatherConditions[weatherData.current.weathercode] || { description: 'Unknown', icon: '❓' };
+                const weatherInfo = weatherConditions[weatherData.current.weathercode] || { description: 'Unknown', icon: '❓' };
                 
                 document.getElementById('weather').style.display = 'block';
                 temperatureElement.textContent = `${weatherData.current.temperature}°C`;
@@ -419,6 +464,7 @@ const weatherInfo = weatherConditions[weatherData.current.weathercode] || { desc
             } catch (error) {
                 console.error('Error updating small weather widget:', error);
                 document.getElementById('weather').style.display = 'none';
+                showPopup('Could not retrieve weather information');
             }
         }
 
@@ -557,49 +603,55 @@ const weatherInfo = weatherConditions[weatherData.current.weathercode] || { desc
         updateTimezones();
         updateSmallWeather();
 
-function showPopup(message) {
-    const popup = document.createElement('div');
-    popup.style.position = 'fixed';
-    popup.style.top = '20px';
-    popup.style.left = '50%';
-    popup.style.transform = 'translateX(-50%)';
-    popup.style.backgroundColor = 'rgba(51, 51, 51, 0.9)';
-    popup.style.color = 'white';
-    popup.style.padding = '20px';
-    popup.style.borderRadius = '30px';
-    popup.style.zIndex = '1000';
-    popup.style.transition = 'opacity 0.5s';
-    popup.textContent = message;
+    function showPopup(message) {
+        const popup = document.createElement('div');
+        popup.style.position = 'fixed';
+        popup.style.top = '20px';
+        popup.style.left = '50%';
+        popup.style.transform = 'translateX(-50%)';
+        popup.style.backgroundColor = 'rgba(51, 51, 51, 0.9)';
+        popup.style.color = 'white';
+        popup.style.padding = '20px';
+        popup.style.borderRadius = '30px';
+        popup.style.zIndex = '1000';
+        popup.style.transition = 'opacity 0.5s';
+        popup.textContent = message;
 
-    document.body.appendChild(popup);
+        document.body.appendChild(popup);
 
-    setTimeout(() => {
-        popup.style.opacity = '0';
         setTimeout(() => {
-            document.body.removeChild(popup);
-        }, 500);
-    }, 3000);
-}
-
-function checkDeviceCompatibility() {
-    const supportedBrowsers = ['Chrome', 'Firefox', 'Safari'];
-    const supportedDevices = ['Android', 'MacIntel', 'ChromeOS', 'iPhone', 'iPad', 'Linux'];
-
-    const browserName = navigator.userAgent.match(/(Chrome|Firefox|Safari)/)?.[1];
-    const deviceType = navigator.platform;
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-    const isSupportedBrowser = supportedBrowsers.includes(browserName);
-    const isSupportedDevice = supportedDevices.some(device => deviceType.includes(device));
-
-    if (!isSupportedBrowser || !isSupportedDevice) {
-        showPopup('Gurasuraisu is not supported on your current browser or device. Check Finder for supported browsers and devices');
+            popup.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(popup);
+            }, 500);
+        }, 3000);
     }
 
-    if (!isTouchDevice) {
-        showPopup('For optimal experience, use a touchscreen device');
-    }
-}
+        setInterval(() => {
+            if (weatherModal.classList.contains('show')) {
+                displayDetailedWeather();
+            }
+        }, 60000);
+        
+        function checkDeviceCompatibility() {
+            const supportedBrowsers = ['Chrome', 'Firefox', 'Safari'];
+            const supportedDevices = ['Android', 'MacIntel', 'ChromeOS', 'iPhone', 'iPad', 'Linux'];
+
+            const browserName = navigator.userAgent.match(/(Chrome|Firefox|Safari)/)?.[1];
+            const deviceType = navigator.platform;
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+            const isSupportedBrowser = supportedBrowsers.includes(browserName);
+            const isSupportedDevice = supportedDevices.some(device => deviceType.includes(device));
+
+            if (!isSupportedBrowser || !isSupportedDevice) {
+                showPopup('Gurasuraisu is not supported on your current browser or device. Check Finder for supported browsers and devices');
+            }
+
+            if (!isTouchDevice) {
+                showPopup('For optimal experience, use a touchscreen device');
+            }
+        }
 
 checkDeviceCompatibility();
     </script>
