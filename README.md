@@ -13,7 +13,6 @@ We welcome contributions to Mocha! Here's how you can get involved:
 - UI Concepts: Create mockups of improved Mocha interface and create a new GitHub Issue.
 
 ## Recommended Settings
-- Enable fullscreen for the best experience.
 - Disable any dark mode and Adblocker extensions to avoid display issues.
 
 ## What's next for Mocha?
