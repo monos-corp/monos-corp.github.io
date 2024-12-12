@@ -361,6 +361,30 @@
         .autocomplete-suggestion:hover {
             background-color: rgba(85, 85, 85, 0.9);
         }
+
+        .edit-wallpaper {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #f9f9f9;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-wallpaper:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        #wallpaperInput {
+            display: none;
+        }
         
         @media (max-width: 768px) {
             .clock {
@@ -432,6 +456,11 @@
             </div>
         </div>
     </div>
+
+    <input type="file" id="wallpaperInput" accept="image/png">
+        <div class="edit-wallpaper" id="editWallpaper">
+            <span class="material-symbols-outlined">edit</span>
+        </div>
 
     <div class="blur-overlay" id="blurOverlay"></div>
 
@@ -907,9 +936,45 @@ async function fetchLocationAndWeather() {
                 }
             }
         });
-        
+
+const editWallpaperButton = document.getElementById('editWallpaper');
+const wallpaperInput = document.getElementById('wallpaperInput');
+
+function saveWallpaper(file) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const imageDataUrl = event.target.result;
+        localStorage.setItem('customWallpaper', imageDataUrl);
+        applyWallpaper();
+    };
+    reader.readAsDataURL(file);
+}
+
+function applyWallpaper() {
+    const savedWallpaper = localStorage.getItem('customWallpaper');
+    if (savedWallpaper) {
+        document.body.style.backgroundImage = `url('${savedWallpaper}')`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+    }
+}
+
+editWallpaperButton.addEventListener('click', () => {
+    wallpaperInput.click();
+});
+
+wallpaperInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file && file.type === 'image/png') {
+        saveWallpaper(file);
+    } else {
+        showPopup('Please upload a PNG image');
+    }
+});        
         checkDeviceCompatibility();
         goFullscreen();
+        applyWallpaper();
     </script>
 </body>
 </html>
