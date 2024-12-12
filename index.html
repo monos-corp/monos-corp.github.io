@@ -533,10 +533,22 @@ async function fetchLocationAndWeather() {
             let backgroundColor = isDaytime ? '#2F4F4F' : '#0C0C0C';
 
             switch (current.weathercode) {
-                case 0: backgroundColor = isDaytime ? '#2C3539' : '#0C0C0C'; break;
-                case 1: backgroundColor = isDaytime ? '#3E474D' : '#0C0C0C'; break;
-                case 2: backgroundColor = isDaytime ? '#4E5A61' : '#0C0C0C'; break;
-                case 3: backgroundColor = isDaytime ? '#36454F' : '#0C0C0C'; break;
+                case 0: backgroundColor = '#2C3539'; break; // Clear Sky
+                case 1: backgroundColor = '#3E474D'; break; // Mainly Clear
+                case 2: backgroundColor = '#4E5A61'; break; // Partly Cloudy
+                case 3: backgroundColor = '#36454F'; break; // Overcast
+                case 45: case 48: backgroundColor = '#556B2F'; break; // Fog
+                case 51: case 53: case 55: backgroundColor = '#696969'; break; // Light Drizzle
+                case 56: case 57: backgroundColor = '#5C5C5C'; break; // Light Freezing Drizzle
+                case 61: case 63: case 65: backgroundColor = '#4F4F4F'; break; // Rain
+                case 66: case 67: backgroundColor = '#4B4B4B'; break; // Freezing Rain
+                case 71: case 73: case 75: backgroundColor = '#E0E0E0'; break; // Snow
+                case 77: backgroundColor = '#E8E8E8'; break; // Snow Grains
+                case 80: case 81: case 82: backgroundColor = '#606060'; break; // Showers
+                case 85: case 86: backgroundColor = '#A9A9A9'; break; // Snow Showers
+                case 95: backgroundColor = '#B8860B'; break; // Thunderstorm
+                case 96: case 99: backgroundColor = '#B5651D'; break; // Thunderstorm with Hail
+                default: backgroundColor = '#2F4F4F'; break; // Default
             }
 
             document.getElementById('detailedWeather').style.backgroundColor = backgroundColor;
