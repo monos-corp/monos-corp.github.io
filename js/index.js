@@ -659,7 +659,7 @@ function initializeCustomization() {
 }
 
 // Call initialization
-        initializeCustomization();
-        firstSetup();
-        goFullscreen();
-        updateDisplay();
+initializeCustomization();
+firstSetup();
+goFullscreen();
+updateDisplay();
