@@ -57,12 +57,10 @@ function updateTimezones() {
 
 async function fetchLocationAndWeather() {
     return new Promise((resolve, reject) => {
-        // Use browser's geolocation
         navigator.geolocation.getCurrentPosition(async (position) => {
             try {
                 const { latitude, longitude } = position.coords;
 
-                // Attempt to get city name using reverse geocoding
                 const geocodingUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
                 let city = 'Unknown Location';
                 try {
@@ -188,7 +186,7 @@ async function fetchLocationAndWeather() {
                 case 85: case 86: backgroundColor = '#A9A9A9'; break; // Snow Showers
                 case 95: backgroundColor = '#B8860B'; break; // Thunderstorm
                 case 96: case 99: backgroundColor = '#B5651D'; break; // Thunderstorm with Hail
-                default: backgroundColor = '#2F4F4F'; break; // Default
+                default: backgroundColor = '#2F4F4F'; break;
             }
 
             document.getElementById('detailedWeather').style.backgroundColor = backgroundColor;
@@ -300,7 +298,13 @@ async function fetchLocationAndWeather() {
             popup.style.zIndex = '1000';
             popup.style.transition = 'opacity 0.5s';
             popup.textContent = message;
-        
+
+          const lastPopup = document.querySelector('.popup');
+          const topPosition = lastPopup ? lastPopup.offsetTop + lastPopup.offsetHeight + 10 : 20;
+
+          popup.style.top = `${topPosition}px`;
+          popup.classList.add('popup');
+                
         document.body.appendChild(popup);
 
         setTimeout(() => {
@@ -331,19 +335,15 @@ async function fetchLocationAndWeather() {
         }
         
         function firstSetup() {
-            // Check if the user has visited before
             const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
     
-            // Show a welcome message if it's the user's first visit
             if (!hasVisitedBefore) {
                 showPopup('Welcome to Gurasuraisu!');
                 localStorage.setItem('hasVisitedBefore', 'true');
             }
 
-            // Check if the device is not a touchscreen
             const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-            // Show the touchscreen message if the user hasn't seen it and is not on a touch device
             if (!localStorage.getItem('hasSeenPopupTouchscreen') && !isTouchDevice) {
                 showPopup('For optimal experience, use a touchscreen device');
                 localStorage.setItem('hasSeenPopupTouchscreen', 'true');
@@ -370,7 +370,6 @@ async function fetchLocationAndWeather() {
             "find my": "https://www.icloud.com/find",
         };
 
-            // Fuzzy search function to find the best match for app names
     function fuzzySearch(query, appList) {
         const threshold = 0.5;
         let bestMatch = null;
