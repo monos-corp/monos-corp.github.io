@@ -481,9 +481,63 @@ async function fetchLocationAndWeather() {
             }
         });
 
-const customizeButton = document.getElementById('customize');
+  const customizeButton = document.getElementById('customize');
+const customizeModal = document.getElementById('customizeModal');
+const closeCustomizeModal = document.getElementById('closeCustomizeModal');
+const themeSwitch = document.getElementById('theme-switch');
 const wallpaperInput = document.getElementById('wallpaperInput');
+const uploadButton = document.getElementById('uploadButton');
 
+// Theme switching functionality
+function setupThemeSwitcher() {
+    // Check and set initial theme
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    document.body.classList.toggle('light-theme', currentTheme === 'light');
+    themeSwitch.checked = currentTheme === 'light';
+
+    // Theme switch event listener
+    themeSwitch.addEventListener('change', () => {
+        document.body.classList.toggle('light-theme');
+        const newTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+        localStorage.setItem('theme', newTheme);
+    });
+}
+
+// Customize modal functionality
+customizeButton.addEventListener('click', () => {
+    customizeModal.style.display = 'block';
+    blurOverlay.style.display = 'block';
+    setTimeout(() => {
+        customizeModal.classList.add('show');
+        blurOverlay.classList.add('show');
+    }, 10);
+});
+
+closeCustomizeModal.addEventListener('click', () => {
+    customizeModal.classList.remove('show');
+    blurOverlay.classList.remove('show');
+    setTimeout(() => {
+        customizeModal.style.display = 'none';
+        blurOverlay.style.display = 'none';
+    }, 300);
+});
+
+// Wallpaper upload functionality
+uploadButton.addEventListener('click', () => {
+    wallpaperInput.click();
+});
+
+wallpaperInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file && ['image/png', 'image/jpeg', 'image/jpg'].includes(file.type)) {
+        saveWallpaper(file);
+        showPopup('Wallpaper updated');
+    } else {
+        showPopup('Please upload a PNG or JPEG image');
+    }
+});
+
+// Existing wallpaper save and apply functions remain the same
 function saveWallpaper(file) {
     const reader = new FileReader();
     reader.onload = function(event) {
@@ -504,18 +558,13 @@ function applyWallpaper() {
     }
 }
 
-customizeButton.addEventListener('click', () => {
-    wallpaperInput.click();
-});
+// Initialize theme and wallpaper on load
+function initializeCustomization() {
+    setupThemeSwitcher();
+    applyWallpaper();
+}
 
-wallpaperInput.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (file && file.type === 'image/png') {
-        saveWallpaper(file);
-    } else {
-        showPopup('Upload a PNG image');
-    }
-});        
+// Call initialization
+        initializeCustomization();
         firstSetup();
-        applyWallpaper();
         goFullscreen();
