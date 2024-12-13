@@ -8,22 +8,64 @@ function updateTitle() {
     }
 }
 
+// Continuous title update logic
+function startTitleUpdate() {
+    if (!timerId) return; // Only update title if the timer is running
+
+    const titleInterval = setInterval(() => {
+        if (timeLeft > 0 && timerId) {
+            // Timer is active, update the title
+            document.title = `${formatTime(timeLeft)} - Gurasuraisu`;
+        } else {
+            // Timer stopped, reset title and clear interval
+            document.title = 'Gurasuraisu';
+            clearInterval(titleInterval);
+        }
+    }, 1000);
+}
+
 // Handle visibility changes
 document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
+        // When tab is hidden, ensure the timer title updates every second if active
         if (timeLeft > 0 && timerId) {
-            // If the timer is running, show the remaining time
-            document.title = `${formatTime(timeLeft)} - Gurasuraisu`;
+            startTitleUpdate();
         } else {
-            // Otherwise, show the current time
-            const currentTime = new Date().toLocaleTimeString();
-            document.title = `${currentTime} - Gurasuraisu`;
+            // Show current time if timer isn't running
+            document.title = `${new Date().toLocaleTimeString()} - Gurasuraisu`;
         }
     } else {
-        // On visibility return, prioritize the timer or default title
+        // On tab visibility, prioritize the timer or reset to default
         updateTitle();
     }
 });
+
+// Ensure the title is updated whenever the timer starts
+function toggleTimer() {
+    if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+        startBtn.textContent = 'Start';
+        updateTitle();
+    } else {
+        if (timeLeft > 0) {
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                updateTitle(); // Keep title updated every second
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    startBtn.textContent = 'Start';
+                    playAlarm();
+                    updateTitle();
+                }
+            }, 1000);
+            startBtn.textContent = 'Pause';
+            startTitleUpdate(); // Start continuous title updates
+        }
+    }
+}
         
 const weatherConditions = {
             0: { description: 'Clear Sky', icon: '☀️' },
