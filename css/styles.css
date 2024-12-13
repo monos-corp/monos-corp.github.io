@@ -121,7 +121,7 @@ body.light-theme {
             width: clamp(280px, 90%, 800px);
             max-height: 90vh;
             background-color: var(--modal-background);
-            color: white;
+            color: var(--text-color);
             padding: 40px;
             border-radius: 50px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
@@ -402,7 +402,7 @@ body.light-theme {
             bottom: 20px;
             right: 20px;
             background-color: rgba(255, 255, 255, 0.2);
-            color: #f9f9f9;
+            color: var(--text-color);
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -455,7 +455,7 @@ body.light-theme {
 }
 
 #theme-switch:checked {
-    background-color: #4CAF50;
+    background-color: #3c78d8;
 }
 
 #theme-switch:checked::before {
