@@ -1,4 +1,4 @@
-![GurasuraisuMK](https://github.com/user-attachments/assets/6d00c50f-257d-45fa-9586-7d5cafc47fc1)
+![GurasuraisuMK](https://github.com/user-attachments/assets/e13475bc-ea23-4c7a-b9a0-2b51c2ffed54)
 # Gurasuraisu Mocha 
 Gurasuraisu GitHub Pages
 
