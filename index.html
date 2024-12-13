@@ -769,10 +769,18 @@ async function fetchLocationAndWeather() {
         popup.style.borderRadius = '30px';
         popup.style.zIndex = '1000';
         popup.style.transition = 'opacity 0.5s';
-        popup.style.filter = 'blur(10px)'
         popup.style.textAlign = 'center'
-        popup.textContent = message;
-
+        popup.innerHTML = `<div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            filter: blur(10px);
+            z-index: -1;
+            border-radius: 30px;"></div>${message}`; /* Blur the background only */
+        
         document.body.appendChild(popup);
 
         setTimeout(() => {
