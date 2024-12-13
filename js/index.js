@@ -43,18 +43,6 @@
             dateElement.textContent = now.toLocaleDateString(undefined, options);
         }
 
-function updateTimezones() {
-    const now = new Date();
-
-    const nyTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-    const tokyoTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
-    const sydneyTime = new Date(now.toLocaleString("en-US", { timeZone: "Australia/Sydney" }));
-
-    document.getElementById('ny-time').textContent = `New York: ${String(nyTime.getHours()).padStart(2, '0')}:${String(nyTime.getMinutes()).padStart(2, '0')}:${String(nyTime.getSeconds()).padStart(2, '0')}`;
-    document.getElementById('tokyo-time').textContent = `Tokyo: ${String(tokyoTime.getHours()).padStart(2, '0')}:${String(tokyoTime.getMinutes()).padStart(2, '0')}:${String(tokyoTime.getSeconds()).padStart(2, '0')}`;
-    document.getElementById('sydney-time').textContent = `Sydney: ${String(sydneyTime.getHours()).padStart(2, '0')}:${String(sydneyTime.getMinutes()).padStart(2, '0')}:${String(sydneyTime.getSeconds()).padStart(2, '0')}`;
-}
-
 async function fetchLocationAndWeather() {
     return new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(async (position) => {
@@ -280,9 +268,7 @@ async function fetchLocationAndWeather() {
         });
 
         setInterval(updateClockAndDate, 1000);
-        setInterval(updateTimezones, 1000);
         updateClockAndDate();
-        updateTimezones();
         updateSmallWeather();
 
 // Timer Variables
@@ -312,7 +298,7 @@ function setProgress(percent) {
 function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
 function updateDisplay() {
