@@ -518,6 +518,5 @@ wallpaperInput.addEventListener('change', (event) => {
     }
 });        
         firstSetup();
-        goFullscreen();
         applyWallpaper();
-    
+        goFullscreen();
