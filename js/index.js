@@ -285,55 +285,6 @@ async function fetchLocationAndWeather() {
         updateTimezones();
         updateSmallWeather();
 
-        function showPopup(message) {
-            const popup = document.createElement('div');
-            popup.style.position = 'fixed';
-            popup.style.top = '20px';
-            popup.style.left = '50%';
-            popup.style.transform = 'translateX(-50%)';
-            popup.style.backgroundColor = 'rgba(51, 51, 51, 0.9)';
-            popup.style.color = 'white';
-            popup.style.padding = '20px';
-            popup.style.borderRadius = '30px';
-            popup.style.zIndex = '1000';
-            popup.style.transition = 'opacity 0.5s';
-            popup.textContent = message;
-
-          const lastPopup = document.querySelector('.popup');
-          const topPosition = lastPopup ? lastPopup.offsetTop + lastPopup.offsetHeight + 10 : 20;
-
-          popup.style.top = `${topPosition}px`;
-          popup.classList.add('popup');
-                
-        document.body.appendChild(popup);
-
-        setTimeout(() => {
-            popup.style.opacity = '0';
-            setTimeout(() => {
-                document.body.removeChild(popup);
-            }, 500);
-        }, 3000);
-    }
-
-        setInterval(() => {
-            if (weatherModal.classList.contains('show')) {
-                displayDetailedWeather();
-            }
-        }, 60000);
-
-        function goFullscreen() {
-            const element = document.documentElement;
-            if (element.requestFullscreen) {
-                element.requestFullscreen();
-            } else if (element.mozRequestFullScreen) { // Firefox
-                element.mozRequestFullScreen();
-            } else if (element.webkitRequestFullscreen) { // Chrome, Safari and Opera
-                element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) { // IE/Edge
-                element.msRequestFullscreen();
-            }
-        }
-
 // Timer Variables
 let timeLeft = 0;
 let totalTime = 0;
@@ -442,7 +393,54 @@ timeInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') timeInput.blur();
 });
 
-updateDisplay();
+        function showPopup(message) {
+            const popup = document.createElement('div');
+            popup.style.position = 'fixed';
+            popup.style.top = '20px';
+            popup.style.left = '50%';
+            popup.style.transform = 'translateX(-50%)';
+            popup.style.backgroundColor = 'rgba(51, 51, 51, 0.9)';
+            popup.style.color = 'white';
+            popup.style.padding = '20px';
+            popup.style.borderRadius = '30px';
+            popup.style.zIndex = '1000';
+            popup.style.transition = 'opacity 0.5s';
+            popup.textContent = message;
+
+          const lastPopup = document.querySelector('.popup');
+          const topPosition = lastPopup ? lastPopup.offsetTop + lastPopup.offsetHeight + 10 : 20;
+
+          popup.style.top = `${topPosition}px`;
+          popup.classList.add('popup');
+                
+        document.body.appendChild(popup);
+
+        setTimeout(() => {
+            popup.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(popup);
+            }, 500);
+        }, 3000);
+    }
+
+        setInterval(() => {
+            if (weatherModal.classList.contains('show')) {
+                displayDetailedWeather();
+            }
+        }, 60000);
+
+        function goFullscreen() {
+            const element = document.documentElement;
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) { // Firefox
+                element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { // IE/Edge
+                element.msRequestFullscreen();
+            }
+        }
 
         function firstSetup() {
             const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
@@ -678,3 +676,4 @@ function initializeCustomization() {
         initializeCustomization();
         firstSetup();
         goFullscreen();
+        updateDisplay();
