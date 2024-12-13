@@ -365,9 +365,12 @@ display.addEventListener('click', () => {
 });
 
 timeInput.addEventListener('blur', () => {
-    const input = parseInt(timeInput.value, 10);
-    if (!isNaN(input)) {
-        timeLeft = Math.floor(input / 100) * 60 + (input % 100);
+    const input = timeInput.value.padStart(4, '0'); // Ensure at least 4 digits by padding with leading zeros
+    const minutes = parseInt(input.slice(0, -2), 10); // First two digits (or first digit for 3-digit inputs)
+    const seconds = parseInt(input.slice(-2), 10); // Last two digits
+
+    if (!isNaN(minutes) && !isNaN(seconds)) {
+        timeLeft = minutes * 60 + seconds; // Convert to total seconds
         totalTime = timeLeft;
     }
     updateDisplay();
