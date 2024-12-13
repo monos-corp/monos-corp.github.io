@@ -1,3 +1,8 @@
+        :root {
+            --base-font-size: clamp(16px, 2vw + 1rem, 24px);
+            --primary-color: #f9f9f9;
+            --secondary-color: rgba(255, 255, 255, 0.7);}
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #1c1c1c;
@@ -13,16 +18,17 @@
         }
 
         .container {
+            width: clamp(300px, 90%, 1200px);
+            margin: 0 auto;
+            padding: 1rem;
             text-align: center;
             padding: 20px;
             position: relative;
-            margin-top: 0;
-            padding-top: 0;
             user-select: none;
         }
 
         .clock {
-            font-size: 8rem;
+            font-size: clamp(4rem, 10vw, 8rem);
             font-weight: 700;
             color: #f9f9f9;
             cursor: pointer;
@@ -36,10 +42,11 @@
             align-items: center;
             margin-top: 10px;
             user-select: none;
+            gap: clamp(0.5rem, 2vw, 1rem);
         }
 
         .date {
-            font-size: 2rem;
+            font-size: clamp(1.2rem, 3vw, 2rem);
             font-weight: 400;
             color: #f9f9f9;
             margin-right: 10px;
@@ -47,7 +54,7 @@
         }
 
         .weather-widget {
-            font-size: 2rem;
+            font-size: clamp(1.2rem, 3vw, 2rem);
             font-weight: 400;
             color: #f9f9f9;
             padding: 10px;
@@ -78,8 +85,8 @@
             z-index: 200;
             left: 50%;
             transform: translate(-50%) scale(0.9);
-            width: 80%;
-            max-width: 800px;
+            width: clamp(280px, 90%, 800px);
+            max-height: 90vh;
             background-color: rgba(51, 51, 51, 1);
             color: white;
             padding: 40px;
@@ -87,7 +94,6 @@
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
             opacity: 0;
             transition: transform 0.3s ease, opacity 0.3s ease;
-            max-height: 80vh;
             overflow-y: auto;
             user-select: none;
         }
@@ -227,6 +233,8 @@
             flex-wrap: wrap;
             margin-top: 20px;
             user-select: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         }
 
         .forecast-day {
@@ -295,6 +303,7 @@
             align-items: center;
             padding: 0 20px;
             z-index: 10;
+            transition: all 0.3s ease;
         }
         
         .search-input {
@@ -410,4 +419,79 @@
                 user-select: none;
             }
         }
-    
+
+@media (max-width: 1200px) {
+    .container {
+        width: 90%;
+        padding: 10px;
+    }
+
+    .clock {
+        font-size: clamp(4rem, 10vw, 8rem);
+    }
+
+    .info {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+
+    .clock {
+        font-size: clamp(3rem, 8vw, 6rem);
+    }
+
+    .search-container {
+        top: 30px;
+        max-width: 280px;
+    }
+
+    .modal {
+        width: 95%;
+        padding: 20px;
+        border-radius: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 12px;
+    }
+
+    .clock {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+    }
+
+    .search-input {
+        padding: 10px 40px 10px 50px;
+        font-size: 1rem;
+    }
+
+    .customize {
+        width: 40px;
+        height: 40px;
+        bottom: 10px;
+        right: 10px;
+    }
+}
+
+@media (max-height: 600px) {
+    .search-container {
+        top: 20px;
+        max-width: 250px;
+    }
+
+    .search-input {
+        padding: 10px 40px 10px 50px;
+        font-size: 1rem;
+    }
+
+    .search-icon {
+        left: 25px;
+        font-size: 1.2rem;
+    }
+}
