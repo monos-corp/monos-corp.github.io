@@ -1,4 +1,3 @@
-
         const weatherConditions = {
             0: { description: 'Clear Sky', icon: '☀️' },
             1: { description: 'Mainly Clear', icon: '🌤️' },
