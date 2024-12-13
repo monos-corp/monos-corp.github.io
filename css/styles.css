@@ -472,7 +472,7 @@ body.light-theme {
     color: white;
     border: none;
     padding: 15px 15px;
-    border-radius: 50%;
+    border-radius: 15%;
     cursor: pointer;
 }
 
