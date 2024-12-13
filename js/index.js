@@ -330,11 +330,23 @@ async function fetchLocationAndWeather() {
             }
         }
         
-        function checkDeviceCompatibility() {
+        function firstSetup() {
+            // Check if the user has visited before
+            const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
+    
+            // Show a welcome message if it's the user's first visit
+            if (!hasVisitedBefore) {
+                showPopup('Welcome to Gurasuraisu!');
+                localStorage.setItem('hasVisitedBefore', 'true');
+            }
+
+            // Check if the device is not a touchscreen
             const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-            if (!isTouchDevice) {
+            // Show the touchscreen message if the user hasn't seen it and is not on a touch device
+            if (!localStorage.getItem('hasSeenPopupTouchscreen') && !isTouchDevice) {
                 showPopup('For optimal experience, use a touchscreen device');
+                localStorage.setItem('hasSeenPopupTouchscreen', 'true');
             }
         }
 
@@ -505,7 +517,7 @@ wallpaperInput.addEventListener('change', (event) => {
         showPopup('Upload a PNG image');
     }
 });        
-        checkDeviceCompatibility();
+        firstSetup();
         goFullscreen();
         applyWallpaper();
     
