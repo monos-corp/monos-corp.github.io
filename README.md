@@ -1,4 +1,4 @@
-![Gurasuraisu-Screenshot 1281041](https://github.com/user-attachments/assets/af5007a1-7317-46b1-ad2d-fd4411359fa1)
+![GurasuraisuMK](https://github.com/user-attachments/assets/6d00c50f-257d-45fa-9586-7d5cafc47fc1)
 # Gurasuraisu Mocha 
 Gurasuraisu GitHub Pages
 
