@@ -228,6 +228,7 @@ body.light-theme {
             border-radius: 30px;
             margin: 20px auto;
             text-align: center;
+            color: #f9f9f9;
             max-width: 800px;
             transition: background-color 0.5s;
             user-select: none;
@@ -244,18 +245,20 @@ body.light-theme {
             font-size: 2rem;
             margin-bottom: 10px;
             user-select: none;
+            color: #f9f9f9;
         }
 
         .location-text {
             font-size: 1rem;
             margin-bottom: 10px;
             font-weight: normal;
-            color: var(--text-color);
+            color: #f9f9f9;
             user-select: none;
         }
 
         .additional-info {
             font-size: 1rem;
+            color: #f9f9f9;
             margin-top: 15px;
             user-select: none;
         }
@@ -294,12 +297,14 @@ body.light-theme {
         .forecast-day .day-name {
             font-weight: bold;
             font-size: 1.2rem;
+            color: #f9f9f9;
             user-select: none;
         }
 
         .hourly-forecast {
             margin-top: 30px;
             text-align: left;
+            color: #f9f9f9;
             user-select: none;
         }
 
