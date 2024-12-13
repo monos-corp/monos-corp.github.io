@@ -293,23 +293,14 @@ async function fetchLocationAndWeather() {
         popup.style.top = '20px';
         popup.style.left = '50%';
         popup.style.transform = 'translateX(-50%)';
-        popup.style.backgroundColor = 'rgba(51, 51, 51, 0.6)';
+        popup.style.backgroundColor = 'rgba(51, 51, 51, 0.9)';
         popup.style.color = 'white';
         popup.style.padding = '20px';
         popup.style.borderRadius = '30px';
         popup.style.zIndex = '1000';
         popup.style.transition = 'opacity 0.5s';
-        popup.style.textAlign = 'center'
-        popup.innerHTML = `<div style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: inherit;
-            filter: blur(10px);
-            z-index: -1;
-            border-radius: 30px;"></div>${message}`; /* Blur the background only */
+        popup.style.textAlign = 'center';
+        popup.textContent = message;
         
         document.body.appendChild(popup);
 
