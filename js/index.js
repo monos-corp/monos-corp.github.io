@@ -333,7 +333,117 @@ async function fetchLocationAndWeather() {
                 element.msRequestFullscreen();
             }
         }
-        
+
+// Timer Variables
+let timeLeft = 0;
+let totalTime = 0;
+let timerId = null;
+const display = document.getElementById('display');
+const timeInput = document.getElementById('timeInput');
+const startBtn = document.getElementById('startBtn');
+const resetBtn = document.getElementById('resetBtn');
+const progressRing = document.querySelector('.progress-ring');
+const progressCircle = document.querySelector('.progress-ring circle.progress');
+const timerContainer = document.querySelector('.timer-container');
+
+// Load the MP3 sound for the alarm
+const alarmSound = new Audio('https://www.gstatic.com/delight/funbox/timer_utilitarian_v2.mp3');
+
+const radius = progressCircle.r.baseVal.value;
+const circumference = radius * 2 * Math.PI;
+progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+
+function setProgress(percent) {
+    const offset = circumference - (percent / 100 * circumference);
+    progressCircle.style.strokeDashoffset = offset;
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function updateDisplay() {
+    display.textContent = formatTime(timeLeft);
+    const percent = (timeLeft / totalTime) * 100;
+    setProgress(percent);
+    
+    // Show/hide progress ring based on whether there's time set
+    if (timeLeft > 0) {
+        progressRing.classList.add('active');
+    } else {
+        progressRing.classList.remove('active');
+    }
+}
+
+function addTime(seconds) {
+    if (!timerId) {
+        timeLeft += seconds;
+        totalTime = timeLeft;
+        updateDisplay();
+    }
+}
+
+function toggleTimer() {
+    if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+        startBtn.textContent = 'Start';
+    } else {
+        if (timeLeft > 0) {
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    startBtn.textContent = 'Start';
+                    playAlarm();
+                }
+            }, 1000);
+            startBtn.textContent = 'Pause';
+        }
+    }
+}
+
+function resetTimer() {
+    if (timerId) clearInterval(timerId);
+    timerId = null;
+    timeLeft = 0;
+    totalTime = 0;
+    updateDisplay();
+    startBtn.textContent = 'Start';
+}
+
+function playAlarm() {
+    alarmSound.play();
+}
+
+display.addEventListener('click', () => {
+    timeInput.value = formatTime(timeLeft).replace(':', '');
+    timeInput.style.display = 'block';
+    display.style.display = 'none';
+    timeInput.focus();
+});
+
+timeInput.addEventListener('blur', () => {
+    const input = parseInt(timeInput.value, 10);
+    if (!isNaN(input)) {
+        timeLeft = Math.floor(input / 100) * 60 + (input % 100);
+        totalTime = timeLeft;
+    }
+    updateDisplay();
+    timeInput.style.display = 'none';
+    display.style.display = 'block';
+});
+
+timeInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') timeInput.blur();
+});
+
+updateDisplay();
+
         function firstSetup() {
             const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
     
