@@ -1,4 +1,31 @@
-        const weatherConditions = {
+// Gurasuraisu Mocha
+
+function updateTitle() {
+    if (timeLeft > 0 && timerId) {
+        document.title = `${formatTime(timeLeft)} - Gurasuraisu`; // Timer takes priority
+    } else {
+        document.title = 'Gurasuraisu'; // Default title
+    }
+}
+
+// Handle visibility changes
+document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+        if (timeLeft > 0 && timerId) {
+            // If the timer is running, show the remaining time
+            document.title = `${formatTime(timeLeft)} - Gurasuraisu`;
+        } else {
+            // Otherwise, show the current time
+            const currentTime = new Date().toLocaleTimeString();
+            document.title = `${currentTime} - Gurasuraisu`;
+        }
+    } else {
+        // On visibility return, prioritize the timer or default title
+        updateTitle();
+    }
+});
+        
+const weatherConditions = {
             0: { description: 'Clear Sky', icon: '☀️' },
             1: { description: 'Mainly Clear', icon: '🌤️' },
             2: { description: 'Partly Cloudy', icon: '⛅' },
