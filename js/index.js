@@ -287,20 +287,19 @@ async function fetchLocationAndWeather() {
         updateTimezones();
         updateSmallWeather();
 
-    function showPopup(message) {
-        const popup = document.createElement('div');
-        popup.style.position = 'fixed';
-        popup.style.top = '20px';
-        popup.style.left = '50%';
-        popup.style.transform = 'translateX(-50%)';
-        popup.style.backgroundColor = 'rgba(51, 51, 51, 0.9)';
-        popup.style.color = 'white';
-        popup.style.padding = '20px';
-        popup.style.borderRadius = '30px';
-        popup.style.zIndex = '1000';
-        popup.style.transition = 'opacity 0.5s';
-        popup.style.textAlign = 'center';
-        popup.textContent = message;
+        function showPopup(message) {
+            const popup = document.createElement('div');
+            popup.style.position = 'fixed';
+            popup.style.top = '20px';
+            popup.style.left = '50%';
+            popup.style.transform = 'translateX(-50%)';
+            popup.style.backgroundColor = 'rgba(51, 51, 51, 0.9)';
+            popup.style.color = 'white';
+            popup.style.padding = '20px';
+            popup.style.borderRadius = '30px';
+            popup.style.zIndex = '1000';
+            popup.style.transition = 'opacity 0.5s';
+            popup.textContent = message;
         
         document.body.appendChild(popup);
 
@@ -503,7 +502,7 @@ wallpaperInput.addEventListener('change', (event) => {
     if (file && file.type === 'image/png') {
         saveWallpaper(file);
     } else {
-        showPopup('Please upload a PNG image');
+        showPopup('Upload a PNG image');
     }
 });        
         checkDeviceCompatibility();
