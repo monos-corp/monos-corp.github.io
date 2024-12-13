@@ -464,7 +464,7 @@ body.light-theme {
 }
 
 #theme-switch:checked::before {
-    transform: translateX(25px);
+    transform: translateX(28px);
 }
 
 #uploadButton {
