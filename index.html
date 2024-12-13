@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gurasuraisu</title>
     <link rel="stylesheet" href="css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
 </head>
 <body>
@@ -18,39 +18,52 @@
             </div>
         </div>
     </div>
-
     <div class="search-container">
          <span id="search-icon" class="material-symbols-outlined search-icon">search</span>
             <input type="text" class="search-input" id="search-input" placeholder="Search">
             <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
-        </div>
+    </div>
     
-<div id="customizeModal" class="modal">
-    <div class="modal-content">
-        <button class="close" id="closeCustomizeModal">✕</button>
-        <h2>Customize</h2>
-        <div class="theme-toggle">
-            <label for="theme-switch">Light Mode</label>
-            <input type="checkbox" id="theme-switch">
-        </div>
-        <div class="wallpaper-upload">
-            <label>Upload Wallpaper</label>
-            <input type="file" id="wallpaperInput" accept=".png, .jpg, .jpeg">
-            <button id="uploadButton">Choose File</button>
+    <div id="customizeModal" class="modal">
+        <div class="modal-content">
+            <button class="close" id="closeCustomizeModal">✕</button>
+            <h2>Customize</h2>
+            <div class="theme-toggle">
+                <label for="theme-switch">Light Mode</label>
+                <input type="checkbox" id="theme-switch">
+            </div>
+            <div class="wallpaper-upload">
+                <label>Upload Wallpaper</label>
+                <input type="file" id="wallpaperInput" accept=".png, .jpg, .jpeg">
+                <button id="uploadButton">Choose File</button>
+            </div>
         </div>
     </div>
-</div>
     
     <div id="timezoneModal" class="modal">
         <div class="modal-content">
             <button class="close" id="closeModal">✕</button>
-            <h2>Timezones</h2>
-            <div class="timezone" id="ny-time">New York: </div>
-            <div class="timezone" id="tokyo-time">Tokyo: </div>
-            <div class="timezone" id="sydney-time">Sydney: </div>
+            <h2>Timer</h2>
+            <div class="timer-circle">
+                <svg class="progress-ring" width="450" height="450">
+                    <circle cx="225" cy="225" r="210" />
+                    <circle class="progress" cx="225" cy="225" r="210" />
+                </svg>
+                <div class="timer-display" id="display">0:00</div>
+                <input type="text" class="timer-input" id="timeInput" maxlength="4" pattern="\d*">
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="addTime(30)">+0:30</button>
+                <button class="btn" onclick="addTime(60)">+1:00</button>
+                <button class="btn" onclick="addTime(300)">+5:00</button>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn running" id="startBtn" onclick="toggleTimer()">Start</button>
+                <button class="action-btn running" id="resetBtn" onclick="resetTimer()">Reset</button>
+            </div>
         </div>
     </div>
-
+    
     <div id="weatherModal" class="modal">
         <div class="modal-content">
             <button class="close" id="closeWeatherModal">✕</button>
@@ -59,34 +72,11 @@
             </div>
         </div>
     </div>
-
-<div class="container">
-    <div class="timer-circle">
-        <svg class="progress-ring" width="450" height="450">
-            <circle cx="225" cy="225" r="210" />
-            <circle class="progress" cx="225" cy="225" r="210" />
-        </svg>
-        <div class="timer-display" id="display">0:00</div>
-        <input type="text" class="timer-input" id="timeInput" maxlength="4" pattern="\d*">
-    </div>
-    <div class="controls">
-        <button class="btn" onclick="addTime(30)">+0:30</button>
-        <button class="btn" onclick="addTime(60)">+1:00</button>
-        <button class="btn" onclick="addTime(300)">+5:00</button>
-    </div>
-    <div class="action-buttons">
-        <button class="action-btn running" id="startBtn" onclick="toggleTimer()">Start</button>
-        <button class="action-btn running" id="resetBtn" onclick="resetTimer()">Reset</button>
-    </div>
-</div>
     
-    <input type="file" id="wallpaperInput" accept=".jpg, .jpeg, .png">
-        <div class="customize" id="customize">
-            <span class="material-symbols-outlined">edit</span>
-        </div>
-
+    <div class="customize" id="customize">
+        <span class="material-symbols-outlined">edit</span>
+    </div>
     <div class="blur-overlay" id="blurOverlay"></div>
-
     <script src="js/index.js"></script> 
 </body>
 </html>
