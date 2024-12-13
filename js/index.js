@@ -517,29 +517,26 @@ wallpaperInput.addEventListener('change', (event) => {
     }
 });        
 
-document.addEventListener('DOMContentLoaded', () => {
-    const themeToggle = document.createElement('div');
-    themeToggle.classList.add('theme-toggle');
-    themeToggle.innerHTML = '🌓'; // Moon and sun emoji
-    document.body.appendChild(themeToggle);
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.classList.add(savedTheme);
+            }
 
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.body.classList.add(savedTheme);
-    }
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('light-theme');
 
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('light-theme');
-        
-        // Save theme preference
-        if (document.body.classList.contains('light-theme')) {
-            localStorage.setItem('theme', 'light-theme');
-        } else {
-            localStorage.removeItem('theme');
-        }
-    });
-});
+                // Save theme preference
+                if (document.body.classList.contains('light-theme')) {
+                    localStorage.setItem('theme', 'light-theme');
+                } else {
+                    localStorage.removeItem('theme');
+                }
+            });
+        });
 
 <userStyle>Normal</userStyle>
         firstSetup();
