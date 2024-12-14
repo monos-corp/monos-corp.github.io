@@ -1,18 +1,6 @@
 // Gurasuraisu Mocha
 
-let titleInterval = null; // Interval for updating the title
-
-function updateTitle() {
-    if (timeLeft > 0 && timerId) {
-        // Timer is active - update with remaining time
-        document.title = `${formatTime(timeLeft)} - Gurasuraisu`;
-    } else {
-        // Timer is inactive - reset to default
-        document.title = 'Gurasuraisu';
-    }
-}
-
-// Function to format the current time in 24-hour format
+// Function to get current time in 24-hour format (HH:MM:SS)
 function getCurrentTime24() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
@@ -21,71 +9,19 @@ function getCurrentTime24() {
     return `${hours}:${minutes}:${seconds}`;
 }
 
-// Start updating the title every second
-function startTitleUpdate() {
-    if (titleInterval) clearInterval(titleInterval); // Clear any existing interval
-
-    titleInterval = setInterval(() => {
-        if (document.hidden) {
-            if (timeLeft > 0 && timerId) {
-                // Update title with remaining timer when tab is hidden
-                document.title = `${formatTime(timeLeft)} - Gurasuraisu`;
-            } else {
-                // Show 24-hour current time when timer is not active
-                document.title = `${getCurrentTime24()} - Gurasuraisu`;
-            }
-        } else {
-            // Prioritize timer or default title when tab is visible
-            updateTitle();
-        }
-    }, 1000);
-}
-
-// Stop title updates
-function stopTitleUpdate() {
-    if (titleInterval) {
-        clearInterval(titleInterval);
-        titleInterval = null;
-    }
-}
-
-// Ensure visibility changes are handled
-document.addEventListener("visibilitychange", function () {
-    if (document.hidden) {
-        startTitleUpdate(); // Keep updating the title every second when hidden
+// Function to update the document title
+function updateTitle() {
+    if (timeLeft > 0 && timerId) {
+        // If timer is active, show remaining time
+        document.title = `${formatTime(timeLeft)} - Gurasuraisu`;
     } else {
-        updateTitle(); // Reset to normal title behavior
-    }
-});
-
-// Call `startTitleUpdate` when the timer starts
-function toggleTimer() {
-    if (timerId) {
-        clearInterval(timerId);
-        timerId = null;
-        startBtn.textContent = 'Start';
-        stopTitleUpdate();
-        updateTitle();
-    } else {
-        if (timeLeft > 0) {
-            timerId = setInterval(() => {
-                timeLeft--;
-                updateDisplay();
-                updateTitle();
-                if (timeLeft <= 0) {
-                    clearInterval(timerId);
-                    timerId = null;
-                    startBtn.textContent = 'Start';
-                    playAlarm();
-                    stopTitleUpdate();
-                    updateTitle();
-                }
-            }, 1000);
-            startBtn.textContent = 'Pause';
-            startTitleUpdate(); // Begin continuous title updates
-        }
+        // Otherwise, show current 24-hour time
+        document.title = `${getCurrentTime24()} - Gurasuraisu`;
     }
 }
+
+// Start an interval to update the title every second
+setInterval(updateTitle, 1000);
 
 const weatherConditions = {
             0: { description: 'Clear Sky', icon: '☀️' },
