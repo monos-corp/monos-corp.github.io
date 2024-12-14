@@ -822,96 +822,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-function setupDrawerInteractions() {
-    let startY = 0;
-    let currentY = 0;
-    let initialDrawerPosition = -100; // Initial position in %
-    let isDragging = false;
-
-    function startDrag(yPosition) {
-        startY = yPosition;
-        currentY = yPosition;
-        isDragging = true;
-        appDrawer.style.transition = 'none'; // Disable smooth transition
-
-        console.log('Drag started:', { startY, initialDrawerPosition });
-    }
-
-    function moveDrawer(yPosition) {
-        if (!isDragging) return;
-
-        currentY = yPosition;
-        const deltaY = startY - currentY;
-        const windowHeight = window.innerHeight;
-        const movementPercentage = (deltaY / windowHeight) * 100;
-
-        // Clamp the drawer position between -100% and 0%
-        const newPosition = Math.max(-100, Math.min(0, initialDrawerPosition + movementPercentage));
-        appDrawer.style.bottom = `${newPosition}%`;
-
-        console.log('Dragging:', { currentY, deltaY, movementPercentage, newPosition });
-    }
-
-    function endDrag() {
-        if (!isDragging) return;
-
-        const deltaY = startY - currentY;
-        const velocity = deltaY / 100; // Example velocity calculation
-        const currentBottom = parseFloat(appDrawer.style.bottom);
-
-        appDrawer.style.transition = 'bottom 0.3s ease'; // Add smooth snap animation
-
-        console.log('Drag ended:', { deltaY, velocity, currentBottom });
-
-        if (deltaY > 50 || velocity > 0.4) {
-            appDrawer.style.bottom = '0%';
-            appDrawer.classList.add('open');
-            initialDrawerPosition = 0;
-        } else if (deltaY < -50 || velocity < -0.4) {
-            appDrawer.style.bottom = '-100%';
-            appDrawer.classList.remove('open');
-            initialDrawerPosition = -100;
-        } else {
-            if (currentBottom >= -50) {
-                appDrawer.style.bottom = '0%';
-                appDrawer.classList.add('open');
-                initialDrawerPosition = 0;
-            } else {
-                appDrawer.style.bottom = '-100%';
-                appDrawer.classList.remove('open');
-                initialDrawerPosition = -100;
-            }
-        }
-
-        isDragging = false;
-    }
-
-    // Touch Zone for Opening
-    const drawerTouchZone = document.getElementById('drawerTouchZone');
-    drawerTouchZone.addEventListener('touchstart', (e) => {
-        console.log('Touch Zone Start:', e.touches[0].clientY);
-        startDrag(e.touches[0].clientY);
-    }, { passive: false });
-
-    // Drawer dragging interactions
-    appDrawer.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientY), { passive: false });
-    document.addEventListener('touchmove', (e) => moveDrawer(e.touches[0].clientY), { passive: false });
-    document.addEventListener('touchend', endDrag);
-
-    // Mouse Events for compatibility
-    document.addEventListener('mousedown', (e) => {
-        if (e.clientY > window.innerHeight * 0.8 || appDrawer.classList.contains('open')) {
-            startDrag(e.clientY);
-        }
-    });
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            moveDrawer(e.clientY);
-        }
-    });
-    document.addEventListener('mouseup', endDrag);
-}
-
     // Toggle button for opening the drawer
     appDrawerToggle.addEventListener('click', () => {
         appDrawer.style.transition = 'bottom 0.3s ease';
@@ -919,6 +829,51 @@ function setupDrawerInteractions() {
         appDrawer.classList.add('open');
         initialDrawerPosition = 0;
     });
+
+// Variables to track swipe interactions
+let startY = 0;
+let initialDrawerPosition = 0;
+
+function setupDrawerInteractions() {
+    // Swipe up to open drawer
+    document.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        const currentY = e.touches[0].clientY;
+        const diffY = startY - currentY;
+
+        // Swipe up to open drawer
+        if (diffY > 50 && !appDrawer.classList.contains('open')) {
+            appDrawer.style.transition = 'bottom 0.3s ease';
+            appDrawer.style.bottom = '0%';
+            appDrawer.classList.add('open');
+            initialDrawerPosition = 0;
+        }
+    });
+
+    // Swipe down from drawer to close
+    appDrawer.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+    });
+
+    appDrawer.addEventListener('touchmove', (e) => {
+        const currentY = e.touches[0].clientY;
+        const diffY = currentY - startY;
+
+        // Swipe down to close drawer
+        if (diffY > 50 && appDrawer.classList.contains('open')) {
+            appDrawer.style.transition = 'bottom 0.3s ease';
+            appDrawer.style.bottom = '-90%';
+            appDrawer.classList.remove('open');
+            initialDrawerPosition = -90;
+        }
+    });
+}
+
+// Call initialization when the page loads
+document.addEventListener('DOMContentLoaded', initAppDraw);
 
     // Initialize everything
     function initAppDraw() {
