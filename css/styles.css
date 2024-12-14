@@ -625,6 +625,7 @@ body.light-theme {
             padding: 20px;
             height: 100%;
             overflow-y: auto;
+            user-select: none;
         }
 
         .app-drawer-grid {
@@ -641,6 +642,7 @@ body.light-theme {
             transition: transform 0.2s;
             padding: 10px;
             border-radius: 10px;
+            user-select: none;
         }
 
         .app-icon:active {
