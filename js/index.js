@@ -13,10 +13,10 @@ function getCurrentTime24() {
 function updateTitle() {
     if (timeLeft > 0 && timerId) {
         // If timer is active, show remaining time
-        document.title = `${formatTime(timeLeft)} - Gurasuraisu`;
+        document.title = `${formatTime(timeLeft)} • Gurasuraisu`;
     } else {
         // Otherwise, show current 24-hour time
-        document.title = `${getCurrentTime24()} - Gurasuraisu`;
+        document.title = `${getCurrentTime24()} • Gurasuraisu`;
     }
 }
 
