@@ -830,11 +830,11 @@ document.addEventListener('DOMContentLoaded', () => {
         initialDrawerPosition = 0;
     });
 
-// Variables to track swipe interactions
-let startY = 0;
-let initialDrawerPosition = 0;
-
 function setupDrawerInteractions() {
+    // Variables to track swipe interactions
+    let startY = 0;
+    let initialDrawerPosition = 0;
+
     // Swipe up to open drawer
     document.addEventListener('touchstart', (e) => {
         startY = e.touches[0].clientY;
@@ -871,9 +871,6 @@ function setupDrawerInteractions() {
         }
     });
 }
-
-// Call initialization when the page loads
-document.addEventListener('DOMContentLoaded', initAppDraw);
 
     // Initialize everything
     function initAppDraw() {
