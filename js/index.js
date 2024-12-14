@@ -825,22 +825,20 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupDrawerInteractions() {
     let startY = 0;
     let currentY = 0;
-    let startTime = 0;
+    let initialDrawerPosition = -100; // Initial bottom position in percentage (hidden)
     let isDragging = false;
-    let initialDrawerPosition = -100; // Initial position in percentage (hidden)
-    const flickThreshold = 0.5; // Velocity threshold for a flick (percentage/ms)
+    const flickVelocityThreshold = 0.4; // Flick velocity in percentage/ms
     const openThreshold = -50; // Drawer opens if above this position
 
-    // Start dragging logic (common for touch and mouse)
+    // Start interaction (common for touch and mouse)
     function startDrag(yPosition) {
         startY = yPosition;
         currentY = yPosition;
-        startTime = Date.now();
         isDragging = true;
-        appDrawer.style.transition = 'none'; // Disable transitions for real-time dragging
+        appDrawer.style.transition = 'none'; // Disable smooth transition during dragging
     }
 
-    // Move drawer logic
+    // Move drawer (dragging interaction)
     function moveDrawer(yPosition) {
         if (!isDragging) return;
 
@@ -849,37 +847,35 @@ function setupDrawerInteractions() {
         const windowHeight = window.innerHeight;
         const movementPercentage = (deltaY / windowHeight) * 100;
 
-        // Calculate the new position
+        // Calculate and clamp the drawer's position
         const newPosition = Math.max(-100, Math.min(0, initialDrawerPosition + movementPercentage));
         appDrawer.style.bottom = `${newPosition}%`;
     }
 
-    // End dragging logic
+    // End interaction (handle swipe or drag release)
     function endDrag() {
         if (!isDragging) return;
 
-        const deltaTime = Date.now() - startTime;
         const deltaY = startY - currentY;
-        const velocity = Math.abs(deltaY / deltaTime); // Calculate swipe velocity
+        const deltaTime = 100; // Fixed frame duration for reliable velocity calculation
+        const velocity = deltaY / deltaTime; // Approximate swipe velocity in percentage/ms
 
-        appDrawer.style.transition = 'bottom 0.3s ease'; // Smooth animation
+        appDrawer.style.transition = 'bottom 0.3s ease'; // Smooth transition for snap animation
 
-        if (velocity > flickThreshold) {
-            // Flick logic
-            if (deltaY > 0) {
-                // Flick up -> open drawer
-                appDrawer.style.bottom = '0%';
-                appDrawer.classList.add('open');
-                initialDrawerPosition = 0;
-            } else {
-                // Flick down -> close drawer
-                appDrawer.style.bottom = '-100%';
-                appDrawer.classList.remove('open');
-                initialDrawerPosition = -100;
-            }
+        if (velocity > flickVelocityThreshold || deltaY > 50) {
+            // Flick up or significant drag up -> Open drawer
+            appDrawer.style.bottom = '0%';
+            appDrawer.classList.add('open');
+            initialDrawerPosition = 0;
+        } else if (velocity < -flickVelocityThreshold || deltaY < -50) {
+            // Flick down or significant drag down -> Close drawer
+            appDrawer.style.bottom = '-100%';
+            appDrawer.classList.remove('open');
+            initialDrawerPosition = -100;
         } else {
-            // Drag logic
-            if (parseFloat(appDrawer.style.bottom) >= openThreshold) {
+            // Otherwise, snap based on current position
+            const currentBottom = parseFloat(appDrawer.style.bottom);
+            if (currentBottom >= openThreshold) {
                 appDrawer.style.bottom = '0%';
                 appDrawer.classList.add('open');
                 initialDrawerPosition = 0;
@@ -926,8 +922,9 @@ function setupDrawerInteractions() {
 
     // Toggle button for opening the drawer
     appDrawerToggle.addEventListener('click', () => {
-        appDrawer.classList.add('open');
+        appDrawer.style.transition = 'bottom 0.3s ease';
         appDrawer.style.bottom = '0%';
+        appDrawer.classList.add('open');
         initialDrawerPosition = 0;
     });
 
@@ -936,12 +933,14 @@ function setupDrawerInteractions() {
         if (appDrawer.classList.contains('open') &&
             !appDrawer.contains(e.target) &&
             !appDrawerToggle.contains(e.target)) {
-            appDrawer.classList.remove('open');
+            appDrawer.style.transition = 'bottom 0.3s ease';
             appDrawer.style.bottom = '-100%';
+            appDrawer.classList.remove('open');
             initialDrawerPosition = -100;
         }
     });
 }
+
     // Initialize everything
     function initAppDraw() {
         createAppIcons();
