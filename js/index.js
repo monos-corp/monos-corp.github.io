@@ -845,7 +845,6 @@ function setupDrawerInteractions() {
 
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-
         const currentY = e.touches[0].clientY;
         const diffY = startY - currentY;
         
@@ -853,18 +852,15 @@ function setupDrawerInteractions() {
             Math.min(diffY > 0 ? -diffY : -diffY, 0), 
             -drawerHeight
         );
-
         appDrawer.style.bottom = `${newBottomPosition}px`;
         e.preventDefault();
     }, { passive: false });
 
     document.addEventListener('touchend', (e) => {
         if (!isDragging) return;
-
         isDragging = false;
         
         const currentBottom = parseInt(appDrawer.style.bottom || '0');
-
         if (currentBottom < -drawerHeight / 2) {
             // Close drawer
             appDrawer.style.transition = 'bottom 0.3s ease';
@@ -901,6 +897,7 @@ function setupDrawerInteractions() {
             }
         }
     });
+}
 
     // Initialize everything
     function initAppDraw() {
