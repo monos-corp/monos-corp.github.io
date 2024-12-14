@@ -52,6 +52,8 @@ body.light-theme {
             color: var(--text-color);
             overflow: hidden;
             user-select: none;
+            overscroll-behavior: none;
+            touch-action: manipulation;
         }
 
         .container {
@@ -600,6 +602,8 @@ body.light-theme {
     user-select: none;
     backdrop-filter: blur(10px); /* Apply blur to the background */
     -webkit-backdrop-filter: blur(10px); /* Safari support */
+    touch-action: none;
+    user-select: none;
 }
 
         .app-drawer.open {
