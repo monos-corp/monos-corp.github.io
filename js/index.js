@@ -822,102 +822,120 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Drawer interaction setup
 function setupDrawerInteractions() {
     let startY = 0;
     let currentY = 0;
+    let startTime = 0;
     let isDragging = false;
     let initialDrawerPosition = -100; // Initial bottom position in percentage
+    const flickThreshold = 0.5; // Minimum velocity (percentage/ms) to consider as a flick
 
-    appDrawer.addEventListener('touchstart', (e) => {
-        if (!appDrawer.contains(e.target)) {
-            e.preventDefault(); // Prevent default only for drawer interactions
-        }
-        startY = e.touches[0].clientY;
+    // Common logic for both touch and mouse
+    function startDrag(yPosition) {
+        startY = yPosition;
+        currentY = yPosition;
+        startTime = Date.now();
         isDragging = true;
-        appDrawer.style.transition = 'none'; // Remove transition for smooth tracking
-    }, { passive: false });
+        appDrawer.style.transition = 'none';
+    }
 
-    document.addEventListener('touchmove', (e) => {
+    function moveDrawer(yPosition) {
         if (!isDragging) return;
 
-        currentY = e.touches[0].clientY;
+        currentY = yPosition;
         const deltaY = startY - currentY;
-
         const windowHeight = window.innerHeight;
         const movementPercentage = (deltaY / windowHeight) * 100;
 
-        // Update drawer position with new range
         const newPosition = Math.max(-100, Math.min(0, initialDrawerPosition + movementPercentage));
         appDrawer.style.bottom = `${newPosition}%`;
+    }
 
-        // Determine if the drawer should open or close based on movement
-        if (newPosition >= -50) {
-            appDrawer.classList.add('open');
-        } else {
-            appDrawer.classList.remove('open');
-        }
-    }, { passive: false });
-
-    document.addEventListener('touchend', () => {
+    function endDrag() {
         if (!isDragging) return;
 
-        appDrawer.style.transition = 'bottom 0.3s ease'; // Add smooth transition
+        const deltaTime = Date.now() - startTime;
+        const deltaY = startY - currentY;
+        const velocity = Math.abs(deltaY / deltaTime); // Velocity in percentage/ms
 
-        // Finalize drawer position
-        if (appDrawer.classList.contains('open')) {
-            appDrawer.style.bottom = '0%';
-            initialDrawerPosition = 0;
+        appDrawer.style.transition = 'bottom 0.3s ease'; // Smooth transition after gesture
+
+        if (velocity > flickThreshold) {
+            // Flick logic: Open or close based on direction
+            if (deltaY > 0) {
+                // Flick up to open
+                appDrawer.style.bottom = '0%';
+                appDrawer.classList.add('open');
+                initialDrawerPosition = 0;
+            } else {
+                // Flick down to close
+                appDrawer.style.bottom = '-100%';
+                appDrawer.classList.remove('open');
+                initialDrawerPosition = -100;
+            }
         } else {
-            appDrawer.style.bottom = '-100%';
-            initialDrawerPosition = -100;
+            // Normal drag logic: Decide based on position
+            if (appDrawer.classList.contains('open')) {
+                appDrawer.style.bottom = '0%';
+                initialDrawerPosition = 0;
+            } else {
+                appDrawer.style.bottom = '-100%';
+                initialDrawerPosition = -100;
+            }
         }
 
         isDragging = false;
+    }
+
+    // Touch Events
+    appDrawer.addEventListener('touchstart', (e) => {
+        startDrag(e.touches[0].clientY);
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+        moveDrawer(e.touches[0].clientY);
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => {
+        endDrag();
     });
 
-    // Mouse interactions for desktop
+    // Mouse Events
     document.addEventListener('mousedown', (e) => {
-        if (e.button !== 0) return; // Only respond to the primary mouse button
-        if (e.clientY > window.innerHeight * 0.8) { // Start gesture near the bottom
-            startY = e.clientY;
-            isDragging = true;
-            appDrawer.style.transition = 'none';
+        if (e.button !== 0) return; // Only respond to left mouse button
+        if (e.clientY > window.innerHeight * 0.8 || appDrawer.classList.contains('open')) {
+            startDrag(e.clientY);
         }
     });
 
     document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-
-        const deltaY = startY - e.clientY;
-        const windowHeight = window.innerHeight;
-        const movementPercentage = (deltaY / windowHeight) * 100;
-
-        const newPosition = Math.max(-100, Math.min(0, initialDrawerPosition + movementPercentage));
-        appDrawer.style.bottom = `${newPosition}%`;
-
-        if (newPosition >= -50) {
-            appDrawer.classList.add('open');
-        } else {
-            appDrawer.classList.remove('open');
+        if (isDragging) {
+            moveDrawer(e.clientY);
         }
     });
 
     document.addEventListener('mouseup', () => {
-        if (!isDragging) return;
+        endDrag();
+    });
 
-        appDrawer.style.transition = 'bottom 0.3s ease';
+    // Toggle button for opening the drawer
+    appDrawerToggle.addEventListener('click', () => {
+        appDrawer.classList.add('open');
+        appDrawer.style.bottom = '0%';
+        initialDrawerPosition = 0;
+    });
 
-        if (appDrawer.classList.contains('open')) {
-            appDrawer.style.bottom = '0%';
-            initialDrawerPosition = 0;
-        } else {
+    // Close drawer when clicking outside
+    document.addEventListener('click', (e) => {
+        if (appDrawer.classList.contains('open') &&
+            !appDrawer.contains(e.target) &&
+            !appDrawerToggle.contains(e.target)) {
+            appDrawer.classList.remove('open');
             appDrawer.style.bottom = '-100%';
             initialDrawerPosition = -100;
         }
-
-        isDragging = false;
     });
+}
 
     // Toggle button to open the drawer
     appDrawerToggle.addEventListener('click', () => {
