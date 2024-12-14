@@ -617,7 +617,8 @@ function setupThemeSwitcher() {
     const currentTheme = localStorage.getItem('theme') || 'dark';
     document.body.classList.toggle('light-theme', currentTheme === 'light');
     themeSwitch.checked = currentTheme === 'light';
-
+}
+    
     // Theme switch event listener
     themeSwitch.addEventListener('change', () => {
         document.body.classList.toggle('light-theme');
