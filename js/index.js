@@ -831,46 +831,76 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 function setupDrawerInteractions() {
-    // Variables to track swipe interactions
     let startY = 0;
-    let initialDrawerPosition = 0;
+    let isDragging = false;
+    const drawerHeight = appDrawer.offsetHeight;
+    const screenHeight = window.innerHeight;
 
-    // Swipe up to open drawer
-    document.addEventListener('touchstart', (e) => {
+    // Touch Events (from previous implementation)
+    appDrawer.addEventListener('touchstart', (e) => {
         startY = e.touches[0].clientY;
-    });
+        isDragging = true;
+        appDrawer.style.transition = 'none';
+    }, { passive: false });
 
     document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+
         const currentY = e.touches[0].clientY;
         const diffY = startY - currentY;
+        
+        const newBottomPosition = Math.max(
+            Math.min(diffY > 0 ? -diffY : -diffY, 0), 
+            -drawerHeight
+        );
 
-        // Swipe up to open drawer
-        if (diffY > 50 && !appDrawer.classList.contains('open')) {
+        appDrawer.style.bottom = `${newBottomPosition}px`;
+        e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+
+        isDragging = false;
+        
+        const currentBottom = parseInt(appDrawer.style.bottom || '0');
+
+        if (currentBottom < -drawerHeight / 2) {
+            // Close drawer
+            appDrawer.style.transition = 'bottom 0.3s ease';
+            appDrawer.style.bottom = '-90%';
+            appDrawer.classList.remove('open');
+        } else {
+            // Open drawer
             appDrawer.style.transition = 'bottom 0.3s ease';
             appDrawer.style.bottom = '0%';
             appDrawer.classList.add('open');
-            initialDrawerPosition = 0;
         }
     });
 
-    // Swipe down from drawer to close
-    appDrawer.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-    });
-
-    appDrawer.addEventListener('touchmove', (e) => {
-        const currentY = e.touches[0].clientY;
-        const diffY = currentY - startY;
-
-        // Swipe down to close drawer
-        if (diffY > 50 && appDrawer.classList.contains('open')) {
+    // Mouse Wheel Events for Drawer Interaction
+    document.addEventListener('wheel', (e) => {
+        // Scroll up from bottom to open drawer
+        if (e.deltaY < 0 && !appDrawer.classList.contains('open') && 
+            window.scrollY === 0 && e.clientY > window.innerHeight - 100) {
+            e.preventDefault();
             appDrawer.style.transition = 'bottom 0.3s ease';
-            appDrawer.style.bottom = '-100%';
-            appDrawer.classList.remove('open');
-            initialDrawerPosition = -100;
+            appDrawer.style.bottom = '0%';
+            appDrawer.classList.add('open');
+        }
+        
+        // Scroll down inside drawer to close
+        if (e.deltaY > 0 && appDrawer.classList.contains('open')) {
+            // Check if user is at the top of the drawer content
+            const drawerContent = appDrawer.querySelector('.drawer-content');
+            if (drawerContent && drawerContent.scrollTop === 0) {
+                e.preventDefault();
+                appDrawer.style.transition = 'bottom 0.3s ease';
+                appDrawer.style.bottom = '-90%';
+                appDrawer.classList.remove('open');
+            }
         }
     });
-}
 
     // Initialize everything
     function initAppDraw() {
