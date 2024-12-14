@@ -546,7 +546,7 @@ body.light-theme {
 }
 
 .btn {
-    background-color: rgba(255,255,255,0.1);
+    background-color: var(--transparent-color);
     border: none;
     color: var(--text-color);
     padding: 12px 24px;
@@ -578,7 +578,7 @@ body.light-theme {
     color: var(--text-color);
     transition: all 0.3s ease;
     font-family: 'Inter', sans-serif;
-    background-color: rgba(255,255,255,0.1);
+    background-color: var(--transparent-color);
 }
 
 .action-btn:hover {
