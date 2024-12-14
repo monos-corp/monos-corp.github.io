@@ -937,25 +937,6 @@ function setupDrawerInteractions() {
     });
 }
 
-    // Toggle button to open the drawer
-    appDrawerToggle.addEventListener('click', () => {
-        appDrawer.classList.add('open');
-        appDrawer.style.bottom = '0%';
-        initialDrawerPosition = 0;
-    });
-
-    // Close drawer when clicking outside
-    document.addEventListener('click', (e) => {
-        if (appDrawer.classList.contains('open') &&
-            !appDrawer.contains(e.target) &&
-            !appDrawerToggle.contains(e.target)) {
-            appDrawer.classList.remove('open');
-            appDrawer.style.bottom = '-100%';
-            initialDrawerPosition = -100;
-        }
-    });
-}
-
     // Initialize everything
     function initAppDraw() {
         createAppIcons();
