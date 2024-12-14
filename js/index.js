@@ -825,19 +825,20 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupDrawerInteractions() {
     let startY = 0;
     let currentY = 0;
-    let initialDrawerPosition = -100; // Initial position
+    let initialDrawerPosition = -100; // Initial position in %
     let isDragging = false;
 
+    const appDrawerToggle = document.getElementById('appDrawerToggle');
+
+    // Start drag
     function startDrag(yPosition) {
         startY = yPosition;
         currentY = yPosition;
         isDragging = true;
-        appDrawer.style.transition = 'none'; // Disable transition
-
-        // Debugging Log
-        console.log('Drag started', { startY, initialDrawerPosition });
+        appDrawer.style.transition = 'none'; // Disable smooth transition
     }
 
+    // Move drawer based on drag
     function moveDrawer(yPosition) {
         if (!isDragging) return;
 
@@ -846,54 +847,52 @@ function setupDrawerInteractions() {
         const windowHeight = window.innerHeight;
         const movementPercentage = (deltaY / windowHeight) * 100;
 
-        // Calculate new position
+        // Clamp drawer position
         const newPosition = Math.max(-100, Math.min(0, initialDrawerPosition + movementPercentage));
         appDrawer.style.bottom = `${newPosition}%`;
-
-        // Debugging Log
-        console.log('Dragging', { currentY, deltaY, movementPercentage, newPosition });
     }
 
+    // End drag
     function endDrag() {
         if (!isDragging) return;
 
         const deltaY = startY - currentY;
-        const velocity = deltaY / 100; // Example fixed time frame for velocity calculation
         const currentBottom = parseFloat(appDrawer.style.bottom);
 
-        appDrawer.style.transition = 'bottom 0.3s ease'; // Add smooth transition
+        appDrawer.style.transition = 'bottom 0.3s ease'; // Add smooth snap animation
 
-        // Debugging Log
-        console.log('Drag ended', { deltaY, velocity, currentBottom });
-
-        if (velocity > 0.4 || deltaY > 50) {
+        if (deltaY > 50 || currentBottom >= -50) {
             appDrawer.style.bottom = '0%';
             appDrawer.classList.add('open');
             initialDrawerPosition = 0;
-        } else if (velocity < -0.4 || deltaY < -50) {
+        } else {
             appDrawer.style.bottom = '-100%';
             appDrawer.classList.remove('open');
             initialDrawerPosition = -100;
-        } else {
-            if (currentBottom >= -50) {
-                appDrawer.style.bottom = '0%';
-                appDrawer.classList.add('open');
-                initialDrawerPosition = 0;
-            } else {
-                appDrawer.style.bottom = '-100%';
-                appDrawer.classList.remove('open');
-                initialDrawerPosition = -100;
-            }
         }
 
         isDragging = false;
     }
 
-    // Add listeners (touchstart, touchmove, touchend, etc.)
+    // Drawer Toggle Button (restored functionality)
+    appDrawerToggle.addEventListener('click', () => {
+        if (appDrawer.classList.contains('open')) {
+            appDrawer.style.bottom = '-100%';
+            appDrawer.classList.remove('open');
+            initialDrawerPosition = -100;
+        } else {
+            appDrawer.style.bottom = '0%';
+            appDrawer.classList.add('open');
+            initialDrawerPosition = 0;
+        }
+    });
+
+    // Touch interactions
     appDrawer.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientY), { passive: false });
     document.addEventListener('touchmove', (e) => moveDrawer(e.touches[0].clientY), { passive: false });
-    document.addEventListener('touchend', () => endDrag());
+    document.addEventListener('touchend', endDrag);
 
+    // Mouse interactions
     document.addEventListener('mousedown', (e) => {
         if (e.clientY > window.innerHeight * 0.8 || appDrawer.classList.contains('open')) {
             startDrag(e.clientY);
@@ -904,7 +903,7 @@ function setupDrawerInteractions() {
             moveDrawer(e.clientY);
         }
     });
-    document.addEventListener('mouseup', () => endDrag());
+    document.addEventListener('mouseup', endDrag);
 }
 
     // Initialize everything
