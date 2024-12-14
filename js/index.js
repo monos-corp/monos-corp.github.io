@@ -834,19 +834,22 @@ function setupDrawerInteractions() {
     let startY = 0;
     let isDragging = false;
 
-    // Prevent default touch behavior to improve dragging
-    document.addEventListener('touchstart', (e) => {
+    const appDrawer = document.getElementById('appDrawer'); // Ensure you use the correct ID or selector
+    const triggerArea = document.querySelector('.drawer-trigger'); // Adjust to your drawer trigger element
+
+    // Prevent default touch behavior and only interact with the trigger area
+    triggerArea.addEventListener('touchstart', (e) => {
         startY = e.touches[0].clientY;
         isDragging = true;
         appDrawer.style.transition = 'none';
     });
 
-    document.addEventListener('touchmove', (e) => {
+    triggerArea.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
 
         const currentY = e.touches[0].clientY;
-        const diffY = currentY - startY; // Flipped direction
-        
+        const diffY = currentY - startY;
+
         // Calculate new bottom position
         const newBottomPosition = Math.max(
             Math.min(-diffY, 0), 
@@ -857,11 +860,11 @@ function setupDrawerInteractions() {
         appDrawer.style.bottom = `${newBottomPosition}px`;
     });
 
-    document.addEventListener('touchend', (e) => {
+    triggerArea.addEventListener('touchend', (e) => {
         if (!isDragging) return;
 
         isDragging = false;
-        
+
         // Get current bottom position
         const currentBottom = parseInt(appDrawer.style.bottom || '0');
 
@@ -879,17 +882,11 @@ function setupDrawerInteractions() {
         }
     });
 
-    // Mouse wheel events
+    // Mouse wheel events (applied globally but limited by conditions)
     document.addEventListener('wheel', (e) => {
         // Scroll up from bottom to open drawer
         if (e.deltaY < 0 && !appDrawer.classList.contains('open') && 
             window.scrollY === 0) {
-            // Use event options to explicitly allow preventDefault
-            const wheelOpts = {
-                passive: false,
-                capture: true
-            };
-
             e.preventDefault();
             appDrawer.style.transition = 'bottom 0.3s ease';
             appDrawer.style.bottom = '0%';
@@ -898,11 +895,6 @@ function setupDrawerInteractions() {
         
         // Scroll down to close drawer
         if (e.deltaY > 0 && appDrawer.classList.contains('open')) {
-            const wheelOpts = {
-                passive: false,
-                capture: true
-            };
-
             e.preventDefault();
             appDrawer.style.transition = 'bottom 0.3s ease';
             appDrawer.style.bottom = '-100%';
