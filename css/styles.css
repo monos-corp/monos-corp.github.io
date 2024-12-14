@@ -6,6 +6,7 @@
     --modal-background-dark: rgba(51, 51, 51, 1);
     --modal-transparent-dark: rgba(51, 51, 51, 0.7);
     --search-background-dark: rgba(102, 102, 102, 0.8);
+    --dark-transparent: rgba(255, 255, 255, 0.1); /* Lighter transparent for dark mode */
     
     /* Light Theme Variables */
     --background-color-light: #f0f0f0;
@@ -14,6 +15,7 @@
     --modal-background-light: rgba(240, 240, 240, 1);
     --modal-transparent-light: rgba(240, 240, 240, 0.9);
     --search-background-light: rgba(220, 220, 220, 0.8);
+    --light-transparent: rgba(0, 0, 0, 0.2); /* Darker transparent for light mode */
 
     /* Base Variables */
     --base-font-size: clamp(16px, 2vw + 1rem, 24px);
@@ -25,6 +27,7 @@
     --modal-background: var(--modal-background-dark);
     --modal-transparent: var(--modal-transparent-dark);
     --search-background: var(--search-background-dark);
+    --transparent-color: var(--dark-transparent);
 }
 
 body.light-theme {
@@ -34,6 +37,7 @@ body.light-theme {
     --modal-background: var(--modal-background-light);
     --modal-transparent: var(--modal-transparent-light);
     --search-background: var(--search-background-light);
+    --transparent-color: var(--light-transparent);
 }
 
         body {
@@ -186,7 +190,7 @@ body.light-theme {
             font-weight: bold;
             cursor: pointer;
             padding: 8px;
-            background: rgba(255, 255, 255, 0.2);
+            background-color: var(--transparent-color);
             border: none;
             border-radius: 50%;
             width: 40px;
@@ -406,7 +410,7 @@ body.light-theme {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: var(--transparent-color);
             color: var(--text-color);
             border-radius: 20px;
             width: 50px;
