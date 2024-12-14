@@ -703,6 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 500);
         }, 3000);
     }
+});
 
     // App definitions
     const apps = {
