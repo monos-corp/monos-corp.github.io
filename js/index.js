@@ -827,18 +827,20 @@ function setupDrawerInteractions() {
     let currentY = 0;
     let startTime = 0;
     let isDragging = false;
-    let initialDrawerPosition = -100; // Initial bottom position in percentage
-    const flickThreshold = 0.5; // Minimum velocity (percentage/ms) to consider as a flick
+    let initialDrawerPosition = -100; // Initial position in percentage (hidden)
+    const flickThreshold = 0.5; // Velocity threshold for a flick (percentage/ms)
+    const openThreshold = -50; // Drawer opens if above this position
 
-    // Common logic for both touch and mouse
+    // Start dragging logic (common for touch and mouse)
     function startDrag(yPosition) {
         startY = yPosition;
         currentY = yPosition;
         startTime = Date.now();
         isDragging = true;
-        appDrawer.style.transition = 'none';
+        appDrawer.style.transition = 'none'; // Disable transitions for real-time dragging
     }
 
+    // Move drawer logic
     function moveDrawer(yPosition) {
         if (!isDragging) return;
 
@@ -847,39 +849,43 @@ function setupDrawerInteractions() {
         const windowHeight = window.innerHeight;
         const movementPercentage = (deltaY / windowHeight) * 100;
 
+        // Calculate the new position
         const newPosition = Math.max(-100, Math.min(0, initialDrawerPosition + movementPercentage));
         appDrawer.style.bottom = `${newPosition}%`;
     }
 
+    // End dragging logic
     function endDrag() {
         if (!isDragging) return;
 
         const deltaTime = Date.now() - startTime;
         const deltaY = startY - currentY;
-        const velocity = Math.abs(deltaY / deltaTime); // Velocity in percentage/ms
+        const velocity = Math.abs(deltaY / deltaTime); // Calculate swipe velocity
 
-        appDrawer.style.transition = 'bottom 0.3s ease'; // Smooth transition after gesture
+        appDrawer.style.transition = 'bottom 0.3s ease'; // Smooth animation
 
         if (velocity > flickThreshold) {
-            // Flick logic: Open or close based on direction
+            // Flick logic
             if (deltaY > 0) {
-                // Flick up to open
+                // Flick up -> open drawer
                 appDrawer.style.bottom = '0%';
                 appDrawer.classList.add('open');
                 initialDrawerPosition = 0;
             } else {
-                // Flick down to close
+                // Flick down -> close drawer
                 appDrawer.style.bottom = '-100%';
                 appDrawer.classList.remove('open');
                 initialDrawerPosition = -100;
             }
         } else {
-            // Normal drag logic: Decide based on position
-            if (appDrawer.classList.contains('open')) {
+            // Drag logic
+            if (parseFloat(appDrawer.style.bottom) >= openThreshold) {
                 appDrawer.style.bottom = '0%';
+                appDrawer.classList.add('open');
                 initialDrawerPosition = 0;
             } else {
                 appDrawer.style.bottom = '-100%';
+                appDrawer.classList.remove('open');
                 initialDrawerPosition = -100;
             }
         }
@@ -902,7 +908,7 @@ function setupDrawerInteractions() {
 
     // Mouse Events
     document.addEventListener('mousedown', (e) => {
-        if (e.button !== 0) return; // Only respond to left mouse button
+        if (e.button !== 0) return; // Only handle left mouse button
         if (e.clientY > window.innerHeight * 0.8 || appDrawer.classList.contains('open')) {
             startDrag(e.clientY);
         }
@@ -936,7 +942,6 @@ function setupDrawerInteractions() {
         }
     });
 }
-
     // Initialize everything
     function initAppDraw() {
         createAppIcons();
