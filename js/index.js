@@ -836,20 +836,16 @@ function setupDrawerInteractions() {
 
     // Prevent default touch behavior to improve dragging
     document.addEventListener('touchstart', (e) => {
-        // Only start dragging if touch is near bottom of screen
-        if (e.touches[0].clientY > window.innerHeight - 100) {
-            startY = e.touches[0].clientY;
-            isDragging = true;
-            appDrawer.style.transition = 'none';
-        }
+        startY = e.touches[0].clientY;
+        isDragging = true;
+        appDrawer.style.transition = 'none';
     });
 
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
 
-        e.preventDefault(); // Prevent default scrolling behavior
         const currentY = e.touches[0].clientY;
-        const diffY = currentY - startY;
+        const diffY = currentY - startY; // Flipped direction
         
         // Calculate new bottom position
         const newBottomPosition = Math.max(
@@ -859,7 +855,7 @@ function setupDrawerInteractions() {
 
         // Update drawer position
         appDrawer.style.bottom = `${newBottomPosition}px`;
-    }, { passive: false });
+    });
 
     document.addEventListener('touchend', (e) => {
         if (!isDragging) return;
@@ -888,6 +884,12 @@ function setupDrawerInteractions() {
         // Scroll up from bottom to open drawer
         if (e.deltaY < 0 && !appDrawer.classList.contains('open') && 
             window.scrollY === 0) {
+            // Use event options to explicitly allow preventDefault
+            const wheelOpts = {
+                passive: false,
+                capture: true
+            };
+
             e.preventDefault();
             appDrawer.style.transition = 'bottom 0.3s ease';
             appDrawer.style.bottom = '0%';
@@ -896,6 +898,11 @@ function setupDrawerInteractions() {
         
         // Scroll down to close drawer
         if (e.deltaY > 0 && appDrawer.classList.contains('open')) {
+            const wheelOpts = {
+                passive: false,
+                capture: true
+            };
+
             e.preventDefault();
             appDrawer.style.transition = 'bottom 0.3s ease';
             appDrawer.style.bottom = '-100%';
