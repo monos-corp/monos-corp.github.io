@@ -687,8 +687,233 @@ function initializeCustomization() {
     applyWallpaper();
 }
 
+        document.addEventListener('DOMContentLoaded', () => {
+            // Popup Function
+            function showPopup(message) {
+                const popup = document.createElement('div');
+                popup.classList.add('popup');
+                popup.textContent = message;
+                
+                document.body.appendChild(popup);
+                
+                setTimeout(() => {
+                    popup.style.opacity = '0';
+                    setTimeout(() => {
+                        document.body.removeChild(popup);
+                    }, 500);
+                }, 3000);
+            }
+
+            // App definitions
+            const apps = {
+                "youtube": {
+                    url: "https://youtube.com",
+                    icon: "yt.png"
+                },
+                "yt": {
+                    url: "https://youtube.com",
+                    icon: "yt.png"
+                },
+                "drive": {
+                    url: "https://drive.google.com",
+                    icon: "gdrive.png"
+                },
+                "calendar": {
+                    url: "https://calendar.google.com",
+                    icon: "gcalendar.png"
+                },
+                "cal": {
+                    url: "https://calendar.google.com",
+                    icon: "gcalendar.png"
+                },
+                "docs": {
+                    url: "https://docs.google.com",
+                    icon: "gdocs.png"
+                },
+                "photos": {
+                    url: "https://photos.google.com",
+                    icon: "gphotos.png"
+                },
+                "notes": {
+                    url: "https://keep.google.com",
+                    icon: "gkeep.png"
+                },
+                "keep": {
+                    url: "https://keep.google.com",
+                    icon: "gkeep.png"
+                },
+                "calculator": {
+                    url: "https://calculator.apps.chrome",
+                    icon: "calculator.png"
+                },
+                "music": {
+                    url: "https://music.apple.com",
+                    icon: "amusic.png"
+                },
+                "notion": {
+                    url: "https://notion.so",
+                    icon: "notion.png"
+                },
+                "find my": {
+                    url: "https://www.icloud.com/find",
+                    icon: "afindmy.png"
+                },
+                "settings": {
+                    url: "#settings",
+                    icon: "settings.png"
+                },
+                "weather": {
+                    url: "#weather",
+                    icon: "weather.png"
+                }
+            };
+
+            const appDrawer = document.getElementById('app-drawer');
+            const appGrid = document.getElementById('app-grid');
+            const appDrawerToggle = document.getElementById('app-drawer-toggle');
+
+            // Function to create app icons
+            function createAppIcons() {
+                appGrid.innerHTML = '';
+
+                Object.entries(apps).forEach(([appName, appDetails]) => {
+                    const appIcon = document.createElement('div');
+                    appIcon.classList.add('app-icon');
+                    appIcon.dataset.app = appName;
+
+                    // Create icon image
+                    const img = document.createElement('img');
+                    img.src = `/assets/appicon/${appDetails.icon}`;
+                    img.alt = appName;
+                    img.onerror = () => {
+                        img.src = '/assets/default-app-icon.png'; // Fallback icon
+                    };
+
+                    // Create app name label
+                    const label = document.createElement('span');
+                    label.textContent = appName;
+
+                    appIcon.appendChild(img);
+                    appIcon.appendChild(label);
+
+                    // Add click event to open app
+                    appIcon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        try {
+                            // Special handling for local apps
+                            if (appDetails.url.startsWith('#')) {
+                                switch(appDetails.url) {
+                                    case '#settings':
+                                        showPopup('Opening Settings');
+                                        break;
+                                    case '#weather':
+                                        showPopup('Opening Weather');
+                                        break;
+                                    default:
+                                        showPopup(`${appName} app opened`);
+                                }
+                            } else {
+                                // Open external apps in new tab
+                                window.open(appDetails.url, '_blank', 'noopener,noreferrer');
+                            }
+                            
+                            // Close the drawer
+                            appDrawer.classList.remove('open');
+                        } catch (error) {
+                            showPopup(`Failed to open ${appName}`);
+                            console.error(`App open error: ${error}`);
+                        }
+                    });
+
+                    appGrid.appendChild(appIcon);
+                });
+            }
+
+            // Drawer interaction setup
+            function setupDrawerInteractions() {
+                let startY = 0;
+                let currentY = 0;
+                let isDragging = false;
+                let initialDrawerPosition = -80; // Initial bottom position in percentage
+
+                // Prevent default touch behavior to improve sensitivity
+                appDrawer.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    startY = e.touches[0].clientY;
+                    isDragging = true;
+                    appDrawer.style.transition = 'none'; // Remove transition for smooth tracking
+                }, { passive: false });
+
+                document.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+
+                    currentY = e.touches[0].clientY;
+                    const deltaY = startY - currentY;
+                    
+                    // Calculate new drawer position based on touch movement
+                    const windowHeight = window.innerHeight;
+                    
+                    // Calculate percentage of movement
+                    const movementPercentage = (deltaY / windowHeight) * 100;
+                    
+                    // Update drawer position to follow touch
+                    const newPosition = Math.max(-80, Math.min(0, initialDrawerPosition + movementPercentage));
+                    appDrawer.style.bottom = `${newPosition}%`;
+
+                    // Determine if drawer should open or close based on movement
+                    if (newPosition >= -40) {
+                        appDrawer.classList.add('open');
+                    } else {
+                        appDrawer.classList.remove('open');
+                    }
+                }, { passive: false });
+
+                document.addEventListener('touchend', () => {
+                    if (!isDragging) return;
+
+                    // Reset transition
+                    appDrawer.style.transition = 'bottom 0.3s ease';
+
+                    // Finalize drawer position
+                    if (appDrawer.classList.contains('open')) {
+                        appDrawer.style.bottom = '0%';
+                        initialDrawerPosition = 0;
+                    } else {
+                        appDrawer.style.bottom = '-80%';
+                        initialDrawerPosition = -80;
+                    }
+
+                    isDragging = false;
+                });
+
+                // Additional open/close methods
+                appDrawerToggle.addEventListener('click', () => {
+                    appDrawer.classList.add('open');
+                    appDrawer.style.bottom = '0%';
+                    initialDrawerPosition = 0;
+                });
+
+                // Close drawer when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (appDrawer.classList.contains('open') && 
+                        !appDrawer.contains(e.target) &&
+                        !appDrawerToggle.contains(e.target)) {
+                        appDrawer.classList.remove('open');
+                        appDrawer.style.bottom = '-80%';
+                        initialDrawerPosition = -80;
+                    }
+                });
+            }
+
+            // Initialize everything
+            function initAppDraw() {
+                createAppIcons();
+                setupDrawerInteractions();
+            }
+
 // Call initialization
 initializeCustomization();
 firstSetup();
 goFullscreen();
 updateDisplay();
+initAppDraw();
