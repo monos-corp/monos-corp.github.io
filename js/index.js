@@ -827,13 +827,17 @@ function setupDrawerInteractions() {
     let currentY = 0;
     let initialDrawerPosition = -100; // Initial bottom position in percentage (hidden)
     let isDragging = false;
-    const flickVelocityThreshold = 0.4; // Flick velocity in percentage/ms
+    let lastMoveTime = 0; // Time of the last movement for velocity calculation
+    let lastMoveY = 0; // Position of the last movement for velocity calculation
+    const flickVelocityThreshold = 0.5; // Flick velocity in percentage/ms
     const openThreshold = -50; // Drawer opens if above this position
 
     // Start interaction (common for touch and mouse)
     function startDrag(yPosition) {
         startY = yPosition;
         currentY = yPosition;
+        lastMoveY = yPosition;
+        lastMoveTime = performance.now();
         isDragging = true;
         appDrawer.style.transition = 'none'; // Disable smooth transition during dragging
     }
@@ -843,9 +847,17 @@ function setupDrawerInteractions() {
         if (!isDragging) return;
 
         currentY = yPosition;
+        const now = performance.now();
         const deltaY = startY - currentY;
         const windowHeight = window.innerHeight;
         const movementPercentage = (deltaY / windowHeight) * 100;
+
+        // Update velocity tracking
+        const deltaTime = now - lastMoveTime;
+        if (deltaTime > 0) {
+            lastMoveTime = now;
+            lastMoveY = yPosition;
+        }
 
         // Calculate and clamp the drawer's position
         const newPosition = Math.max(-100, Math.min(0, initialDrawerPosition + movementPercentage));
@@ -856,19 +868,20 @@ function setupDrawerInteractions() {
     function endDrag() {
         if (!isDragging) return;
 
-        const deltaY = startY - currentY;
-        const deltaTime = 100; // Fixed frame duration for reliable velocity calculation
-        const velocity = deltaY / deltaTime; // Approximate swipe velocity in percentage/ms
+        const now = performance.now();
+        const deltaTime = now - lastMoveTime; // Time since last move
+        const deltaY = lastMoveY - currentY; // Distance of the last movement
+        const velocity = deltaY / deltaTime; // Flick velocity in percentage/ms
 
         appDrawer.style.transition = 'bottom 0.3s ease'; // Smooth transition for snap animation
 
-        if (velocity > flickVelocityThreshold || deltaY > 50) {
-            // Flick up or significant drag up -> Open drawer
+        if (velocity > flickVelocityThreshold) {
+            // Flick up -> Open drawer
             appDrawer.style.bottom = '0%';
             appDrawer.classList.add('open');
             initialDrawerPosition = 0;
-        } else if (velocity < -flickVelocityThreshold || deltaY < -50) {
-            // Flick down or significant drag down -> Close drawer
+        } else if (velocity < -flickVelocityThreshold) {
+            // Flick down -> Close drawer
             appDrawer.style.bottom = '-100%';
             appDrawer.classList.remove('open');
             initialDrawerPosition = -100;
