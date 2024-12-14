@@ -838,7 +838,8 @@ function setupDrawerInteractions() {
     document.addEventListener('touchstart', (e) => {
         startY = e.touches[0].clientY;
         isDragging = true;
-    });
+        appDrawer.style.transition = 'none';
+    }, { passive: false });
 
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
@@ -846,52 +847,58 @@ function setupDrawerInteractions() {
         const currentY = e.touches[0].clientY;
         const diffY = startY - currentY;
         
-        // Swipe up to open drawer
-        if (diffY > 50 && !appDrawer.classList.contains('open')) {
+        // Calculate new bottom position
+        const newBottomPosition = Math.max(
+            Math.min(-diffY, 0), 
+            -window.innerHeight
+        );
+
+        // Update drawer position
+        appDrawer.style.bottom = `${newBottomPosition}px`;
+
+        // Prevent default to stop scrolling
+        e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+
+        isDragging = false;
+        
+        // Get current bottom position
+        const currentBottom = parseInt(appDrawer.style.bottom || '0');
+
+        // Determine if drawer should open or close based on drag distance
+        if (currentBottom < -window.innerHeight / 2) {
+            // Close drawer
+            appDrawer.style.transition = 'bottom 0.3s ease';
+            appDrawer.style.bottom = '-100%';
+            appDrawer.classList.remove('open');
+        } else {
+            // Open drawer
             appDrawer.style.transition = 'bottom 0.3s ease';
             appDrawer.style.bottom = '0%';
             appDrawer.classList.add('open');
-            isDragging = false;
         }
     });
 
-    // Swipe down from drawer to close
-    appDrawer.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-    });
-
-    appDrawer.addEventListener('touchmove', (e) => {
-        const currentY = e.touches[0].clientY;
-        const diffY = currentY - startY;
-
-        // Swipe down to close drawer
-        if (diffY > 50 && appDrawer.classList.contains('open')) {
-            appDrawer.style.transition = 'bottom 0.3s ease';
-            appDrawer.style.bottom = '-90%';
-            appDrawer.classList.remove('open');
-        }
-    });
-
-    // Mouse wheel events for additional interaction
+    // Mouse wheel events
     document.addEventListener('wheel', (e) => {
         // Scroll up from bottom to open drawer
         if (e.deltaY < 0 && !appDrawer.classList.contains('open') && 
-            window.scrollY === 0 && e.clientY > window.innerHeight - 100) {
+            window.scrollY === 0) {
             e.preventDefault();
             appDrawer.style.transition = 'bottom 0.3s ease';
             appDrawer.style.bottom = '0%';
             appDrawer.classList.add('open');
         }
         
-        // Scroll down inside drawer to close
+        // Scroll down to close drawer
         if (e.deltaY > 0 && appDrawer.classList.contains('open')) {
-            const drawerContent = appDrawer.querySelector('.drawer-content');
-            if (drawerContent && drawerContent.scrollTop === 0) {
-                e.preventDefault();
-                appDrawer.style.transition = 'bottom 0.3s ease';
-                appDrawer.style.bottom = '-90%';
-                appDrawer.classList.remove('open');
-            }
+            e.preventDefault();
+            appDrawer.style.transition = 'bottom 0.3s ease';
+            appDrawer.style.bottom = '-100%';
+            appDrawer.classList.remove('open');
         }
     });
 
