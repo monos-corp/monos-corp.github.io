@@ -1,72 +1,92 @@
 // Gurasuraisu Mocha
 
+let titleInterval = null; // Interval for updating the title
+
 function updateTitle() {
     if (timeLeft > 0 && timerId) {
-        document.title = `${formatTime(timeLeft)} - Gurasuraisu`; // Timer takes priority
+        // Timer is active - update with remaining time
+        document.title = `${formatTime(timeLeft)} - Gurasuraisu`;
     } else {
-        document.title = 'Gurasuraisu'; // Default title
+        // Timer is inactive - reset to default
+        document.title = 'Gurasuraisu';
     }
 }
 
-// Continuous title update logic
-function startTitleUpdate() {
-    if (!timerId) return; // Only update title if the timer is running
+// Function to format the current time in 24-hour format
+function getCurrentTime24() {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+}
 
-    const titleInterval = setInterval(() => {
-        if (timeLeft > 0 && timerId) {
-            // Timer is active, update the title
-            document.title = `${formatTime(timeLeft)} - Gurasuraisu`;
+// Start updating the title every second
+function startTitleUpdate() {
+    if (titleInterval) clearInterval(titleInterval); // Clear any existing interval
+
+    titleInterval = setInterval(() => {
+        if (document.hidden) {
+            if (timeLeft > 0 && timerId) {
+                // Update title with remaining timer when tab is hidden
+                document.title = `${formatTime(timeLeft)} - Gurasuraisu`;
+            } else {
+                // Show 24-hour current time when timer is not active
+                document.title = `${getCurrentTime24()} - Gurasuraisu`;
+            }
         } else {
-            // Timer stopped, reset title and clear interval
-            document.title = 'Gurasuraisu';
-            clearInterval(titleInterval);
+            // Prioritize timer or default title when tab is visible
+            updateTitle();
         }
     }, 1000);
 }
 
-// Handle visibility changes
+// Stop title updates
+function stopTitleUpdate() {
+    if (titleInterval) {
+        clearInterval(titleInterval);
+        titleInterval = null;
+    }
+}
+
+// Ensure visibility changes are handled
 document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
-        // When tab is hidden, ensure the timer title updates every second if active
-        if (timeLeft > 0 && timerId) {
-            startTitleUpdate();
-        } else {
-            // Show current time if timer isn't running
-            document.title = `${new Date().toLocaleTimeString()} - Gurasuraisu`;
-        }
+        startTitleUpdate(); // Keep updating the title every second when hidden
     } else {
-        // On tab visibility, prioritize the timer or reset to default
-        updateTitle();
+        updateTitle(); // Reset to normal title behavior
     }
 });
 
-// Ensure the title is updated whenever the timer starts
+// Call `startTitleUpdate` when the timer starts
 function toggleTimer() {
     if (timerId) {
         clearInterval(timerId);
         timerId = null;
         startBtn.textContent = 'Start';
+        stopTitleUpdate();
         updateTitle();
     } else {
         if (timeLeft > 0) {
             timerId = setInterval(() => {
                 timeLeft--;
                 updateDisplay();
-                updateTitle(); // Keep title updated every second
+                updateTitle();
                 if (timeLeft <= 0) {
                     clearInterval(timerId);
                     timerId = null;
                     startBtn.textContent = 'Start';
                     playAlarm();
+                    stopTitleUpdate();
                     updateTitle();
                 }
             }, 1000);
             startBtn.textContent = 'Pause';
-            startTitleUpdate(); // Start continuous title updates
+            startTitleUpdate(); // Begin continuous title updates
         }
     }
 }
-        
+
 const weatherConditions = {
             0: { description: 'Clear Sky', icon: '☀️' },
             1: { description: 'Mainly Clear', icon: '🌤️' },
