@@ -865,9 +865,9 @@ function setupDrawerInteractions() {
         // Swipe down to close drawer
         if (diffY > 50 && appDrawer.classList.contains('open')) {
             appDrawer.style.transition = 'bottom 0.3s ease';
-            appDrawer.style.bottom = '-90%';
+            appDrawer.style.bottom = '-100%';
             appDrawer.classList.remove('open');
-            initialDrawerPosition = -90;
+            initialDrawerPosition = -100;
         }
     });
 }
