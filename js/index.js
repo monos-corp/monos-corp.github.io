@@ -847,6 +847,7 @@ function setupDrawerInteractions() {
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
 
+        e.preventDefault(); // Prevent default scrolling behavior
         const currentY = e.touches[0].clientY;
         const diffY = currentY - startY;
         
@@ -858,7 +859,7 @@ function setupDrawerInteractions() {
 
         // Update drawer position
         appDrawer.style.bottom = `${newBottomPosition}px`;
-    });
+    }, { passive: false });
 
     document.addEventListener('touchend', (e) => {
         if (!isDragging) return;
@@ -901,6 +902,7 @@ function setupDrawerInteractions() {
             appDrawer.classList.remove('open');
         }
     }, { passive: false });
+}
 
     // Initialize everything
     function initAppDraw() {
