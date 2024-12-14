@@ -836,16 +836,19 @@ function setupDrawerInteractions() {
 
     // Prevent default touch behavior to improve dragging
     document.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-        isDragging = true;
-        appDrawer.style.transition = 'none';
+        // Only start dragging if touch is near bottom of screen
+        if (e.touches[0].clientY > window.innerHeight - 100) {
+            startY = e.touches[0].clientY;
+            isDragging = true;
+            appDrawer.style.transition = 'none';
+        }
     });
 
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
 
         const currentY = e.touches[0].clientY;
-        const diffY = currentY - startY; // Flipped direction
+        const diffY = currentY - startY;
         
         // Calculate new bottom position
         const newBottomPosition = Math.max(
@@ -884,12 +887,6 @@ function setupDrawerInteractions() {
         // Scroll up from bottom to open drawer
         if (e.deltaY < 0 && !appDrawer.classList.contains('open') && 
             window.scrollY === 0) {
-            // Use event options to explicitly allow preventDefault
-            const wheelOpts = {
-                passive: false,
-                capture: true
-            };
-
             e.preventDefault();
             appDrawer.style.transition = 'bottom 0.3s ease';
             appDrawer.style.bottom = '0%';
@@ -898,11 +895,6 @@ function setupDrawerInteractions() {
         
         // Scroll down to close drawer
         if (e.deltaY > 0 && appDrawer.classList.contains('open')) {
-            const wheelOpts = {
-                passive: false,
-                capture: true
-            };
-
             e.preventDefault();
             appDrawer.style.transition = 'bottom 0.3s ease';
             appDrawer.style.bottom = '-100%';
@@ -917,6 +909,11 @@ function setupDrawerInteractions() {
         appDrawer.classList.add('open');
     });
 }
+
+// Add z-index to ensure lowest possible layer
+document.addEventListener('DOMContentLoaded', () => {
+    appDrawer.style.zIndex = '1';
+});
 
     // Initialize everything
     function initAppDraw() {
