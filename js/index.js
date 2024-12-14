@@ -833,32 +833,35 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupDrawerInteractions() {
     let startY = 0;
     let isDragging = false;
+    const drawerHeight = appDrawer.offsetHeight;
+    const screenHeight = window.innerHeight;
 
     // Prevent default touch behavior to improve dragging
-    document.addEventListener('touchstart', (e) => {
-        // Only start dragging if touch is near bottom of screen
-        if (e.touches[0].clientY > window.innerHeight - 100) {
-            startY = e.touches[0].clientY;
-            isDragging = true;
-            appDrawer.style.transition = 'none';
-        }
-    });
+    appDrawer.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+        isDragging = true;
+        // Remove any existing transition for smooth dragging
+        appDrawer.style.transition = 'none';
+    }, { passive: false });
 
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
 
         const currentY = e.touches[0].clientY;
-        const diffY = currentY - startY;
+        const diffY = startY - currentY;
         
         // Calculate new bottom position
         const newBottomPosition = Math.max(
-            Math.min(-diffY, 0), 
-            -window.innerHeight
+            Math.min(diffY > 0 ? -diffY : -diffY, 0), 
+            -drawerHeight
         );
 
         // Update drawer position
         appDrawer.style.bottom = `${newBottomPosition}px`;
-    });
+
+        // Prevent default to stop scrolling
+        e.preventDefault();
+    }, { passive: false });
 
     document.addEventListener('touchend', (e) => {
         if (!isDragging) return;
@@ -869,10 +872,10 @@ function setupDrawerInteractions() {
         const currentBottom = parseInt(appDrawer.style.bottom || '0');
 
         // Determine if drawer should open or close based on drag distance
-        if (currentBottom < -window.innerHeight / 2) {
+        if (currentBottom < -drawerHeight / 2) {
             // Close drawer
             appDrawer.style.transition = 'bottom 0.3s ease';
-            appDrawer.style.bottom = '-100%';
+            appDrawer.style.bottom = '-90%';
             appDrawer.classList.remove('open');
         } else {
             // Open drawer
@@ -882,7 +885,7 @@ function setupDrawerInteractions() {
         }
     });
 
-    // Mouse wheel events
+        // Mouse wheel events
     document.addEventListener('wheel', (e) => {
         // Scroll up from bottom to open drawer
         if (e.deltaY < 0 && !appDrawer.classList.contains('open') && 
@@ -901,19 +904,6 @@ function setupDrawerInteractions() {
             appDrawer.classList.remove('open');
         }
     }, { passive: false });
-
-    // Existing toggle button functionality
-    appDrawerToggle.addEventListener('click', () => {
-        appDrawer.style.transition = 'bottom 0.3s ease';
-        appDrawer.style.bottom = '0%';
-        appDrawer.classList.add('open');
-    });
-}
-
-// Add z-index to ensure lowest possible layer
-document.addEventListener('DOMContentLoaded', () => {
-    appDrawer.style.zIndex = '1';
-});
 
     // Initialize everything
     function initAppDraw() {
