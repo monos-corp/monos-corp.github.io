@@ -185,7 +185,7 @@ body.light-theme {
             position: absolute;
             top: -33px;
             left: -10px;
-            color: #aaa;
+            color: var(--text-color);
             font-size: 24px;
             font-weight: bold;
             cursor: pointer;
