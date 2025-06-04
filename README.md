@@ -18,4 +18,4 @@ Timer Sound: Google
 
 ---
 
-Made by Monos
+Made by Monos Corporation
