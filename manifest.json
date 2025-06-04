@@ -1,6 +1,6 @@
 {
-  "name": "Gurasuraisu",
-  "short_name": "Gurasuraisu",
+  "name": "Monos",
+  "short_name": "Monos",
   "start_url": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay"],
@@ -8,7 +8,7 @@
   "theme_color": "#1c1c1c",
   "icons": [
     {
-      "src": "/assets/gurasuraisu.png",
+      "src": "/assets/favicon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
