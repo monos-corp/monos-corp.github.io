@@ -4569,7 +4569,7 @@ persistentClock.addEventListener('click', () => {
 });
 
 document.getElementById("versionButton").addEventListener("click", function() {
-    window.open("https://kirbindustries.gitbook.io/gurasuraisu", "_blank");
+    window.open("https://sites.google.com/view/monos-home/announcements", "_blank");
 });
 
 document.addEventListener('keydown', (event) => {
