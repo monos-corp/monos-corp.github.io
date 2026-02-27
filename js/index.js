@@ -10896,13 +10896,9 @@ var apps = {
         url: "https://polygol.github.io/kirbstore/index.html",
         icon: "appstore.png"
 	},
-    "Tips": {
+    "Blogs": {
         url: "https://monos-wiki.gitbook.io/monos-blogs",
         icon: "tips.png"
-	},
-    "Feedback": {
-        url: "https://docs.google.com/forms/d/e/1FAIpQLSeSYSJalaX0HCZe0helcK5NCuc0U47tQc6KaO1OAsBs5HxK1A/viewform?embedded=true",
-        icon: "feedback.png"
 	},
     "Settings": {
         url: "/assets/gurapp/intl/settings/index.html",

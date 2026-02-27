@@ -1,7 +1,7 @@
 // extservice (External Service)
 // Initialize immediately upon script load
 // --- Ads ---
-const AD_SOURCE_URL = 'https://raw.githubusercontent.com/kirbIndustries/assets/refs/heads/main/kirbindustries-ads-service/octagon/small.json';
+const AD_SOURCE_URL = 'TBA';
 const ROTATION_INTERVAL = 600000; // 10 Minutes in ms
 
 let adQueue = [];

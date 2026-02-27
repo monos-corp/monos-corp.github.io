@@ -1,9 +1,9 @@
-// EN, JP, DE, ES, KO, ZH translation variables for Monos
+// EN, JP, DE, ES, KO, ZH translation variables for Voyager
 
 const LANG_EN = {
-    GREETING: "Monos loaded successfully",
-    LICENCE: "Monos is made by Monos Corporation, and is licensed under the CC BY-NC 4.0",
-    WELCOME_MESSAGE: "Hello, welcome to Monos!",
+    GREETING: "Voyager loaded successfully",
+    LICENCE: "Voyager is made by Voyager Corporation, and is licensed under the CC BY-NC 4.0",
+    WELCOME_MESSAGE: "Hello, welcome to Voyager!",
     PLACEHOLDER_MESSAGE: "Type your message",
     SEND: "Send",
     VOICE: "Voice",
@@ -49,7 +49,7 @@ const LANG_EN = {
     WALLPAPER_HISTORY_FAIL: "Failed to save wallpaper history",
     ALL_WALLPAPER_REMOVE: "All wallpapers removed",
     WALLPAPER_REMOVE: "Wallpaper removed",
-    LOAD_SUCCESS: "Monos loaded successfully",
+    LOAD_SUCCESS: "Voyager loaded successfully",
     NOT_FULLSCREEN: "Not fullscreen",
     CLOCK_STYLE_FAILED: "Failed to load Clock Style",
     CHECK_WORDS: ['updated', 'complete', 'done', 'success', 'completed', 'ready', 'successfully', 'accepted', 'accept', 'yes'],
@@ -74,12 +74,12 @@ const LANG_EN = {
     SETUP_OPEN_PRIVATE_DESC: "Your data stays on device at all times. No user data is transferred to any of our services.",
     SETUP_ALLOW_PERMISSIONS: "Allow Permissions",
     SETUP_BASIC_ACCESS: "Basic access",
-    SETUP_BASIC_ACCESS_DESC: "Enables Monos to work properly",
+    SETUP_BASIC_ACCESS_DESC: "Enables Voyager to work properly",
     SETUP_LOCATION_ACCESS: "Location Access",
     SETUP_LOCATION_ACCESS_DESC: "Enables Weather and personalized results",
     SETUP_NOTIFICATIONS: "Notifications",
     SETUP_NOTIFICATIONS_DESC: "Enables updates and timer alerts",
-    SETUP_CANNIBALIZE: "Personalize your Monos",
+    SETUP_CANNIBALIZE: "Personalize your Voyager",
     SETUP_CLOCK_FORMAT: "Clock Format",
     SETUP_SHOW_SECONDS: "Show Seconds",
     SETUP_HIDE_SECONDS: "Hide Seconds",
@@ -113,13 +113,13 @@ const LANG_EN = {
     GURAPP_DELETE_STORE_DENIED: "The App Store cannot be deleted",
     GURAPP_INSTALLING: "Installing {appName}",
     GURAPP_INSTALL_EXISTS: "{appName} is already installed",
-    GURAPP_INSTALL_NONSTORE_DENIED: "Error: only the Monos App Store can install apps"
+    GURAPP_INSTALL_NONSTORE_DENIED: "Error: only the Voyager App Store can install apps"
 };
 
 const LANG_JP = {
-    GREETING: "Monos を正常に読み込みました。",
-    LICENCE: "Monos は kirbIndustries によって作成され、CC BY-NC 4.0 の下でライセンスされています。",
-    WELCOME_MESSAGE: "こんにちは、Monosへようこそ！",
+    GREETING: "Voyager を正常に読み込みました。",
+    LICENCE: "Voyager は kirbIndustries によって作成され、CC BY-NC 4.0 の下でライセンスされています。",
+    WELCOME_MESSAGE: "こんにちは、Voyagerへようこそ！",
     PLACEHOLDER_MESSAGE: "メッセージを入力してください",
     SEND: "送信",
     VOICE: "音声",
@@ -190,12 +190,12 @@ const LANG_JP = {
     SETUP_OPEN_PRIVATE_DESC: "あなたのデータは常にデバイス上に保持されます。ユーザーデータは当社のサービスに転送されません。",
     SETUP_ALLOW_PERMISSIONS: "許可を与える",
     SETUP_BASIC_ACCESS: "基本アクセス",
-    SETUP_BASIC_ACCESS_DESC: "Monosが適切に動作するようにします",
+    SETUP_BASIC_ACCESS_DESC: "Voyagerが適切に動作するようにします",
     SETUP_LOCATION_ACCESS: "位置情報アクセス",
     SETUP_LOCATION_ACCESS_DESC: "天気とパーソナライズされた結果を有効にします",
     SETUP_NOTIFICATIONS: "通知",
     SETUP_NOTIFICATIONS_DESC: "更新とタイマーアラートを有効にします",
-    SETUP_CANNIBALIZE: "Monosをカスタマイズ",
+    SETUP_CANNIBALIZE: "Voyagerをカスタマイズ",
     SETUP_CLOCK_FORMAT: "時計の形式",
     SETUP_SHOW_SECONDS: "秒を表示",
     SETUP_HIDE_SECONDS: "秒を非表示",
@@ -229,13 +229,13 @@ const LANG_JP = {
     GURAPP_DELETE_STORE_DENIED: "App Store は削除できません",
     GURAPP_INSTALLING: "{appName} をインストール中",
     GURAPP_INSTALL_EXISTS: "{appName} はすでにインストールされています",
-    GURAPP_INSTALL_NONSTORE_DENIED: "エラー: Monos App Store のみがアプリをインストールできます"
+    GURAPP_INSTALL_NONSTORE_DENIED: "エラー: Voyager App Store のみがアプリをインストールできます"
 };
 
 const LANG_DE = {
-    GREETING: "Monos erfolgreich geladen",
-    LICENCE: "Monos wird von kirbIndustries erstellt und ist unter der CC BY-NC 4.0 lizenziert.",
-    WELCOME_MESSAGE: "Hallo, willkommen bei Monos!",
+    GREETING: "Voyager erfolgreich geladen",
+    LICENCE: "Voyager wird von kirbIndustries erstellt und ist unter der CC BY-NC 4.0 lizenziert.",
+    WELCOME_MESSAGE: "Hallo, willkommen bei Voyager!",
     PLACEHOLDER_MESSAGE: "Geben Sie Ihre Nachricht ein",
     SEND: "Senden",
     VOICE: "Sprache",
@@ -281,7 +281,7 @@ const LANG_DE = {
     WALLPAPER_HISTORY_FAIL: "Hintergrundbildverlauf konnte nicht gespeichert werden",
     ALL_WALLPAPER_REMOVE: "Alle Hintergrundbilder entfernt",
     WALLPAPER_REMOVE: "Hintergrundbild entfernt",
-    LOAD_SUCCESS: "Monos erfolgreich geladen",
+    LOAD_SUCCESS: "Voyager erfolgreich geladen",
     NOT_FULLSCREEN: "Nicht im Vollbildmodus",
     CLOCK_STYLE_FAILED: "Uhrstil konnte nicht geladen werden",
     CHECK_WORDS: ['aktualisiert', 'abgeschlossen', 'fertig', 'erfolg', 'erfolgreich', 'akzeptiert', 'akzeptieren', 'ja'],
@@ -306,12 +306,12 @@ const LANG_DE = {
     SETUP_OPEN_PRIVATE_DESC: "Ihre Daten bleiben jederzeit auf dem Gerät. Es werden keine Benutzerdaten an unsere Dienste übertragen.",
     SETUP_ALLOW_PERMISSIONS: "Berechtigungen zulassen",
     SETUP_BASIC_ACCESS: "Grundlegender Zugriff",
-    SETUP_BASIC_ACCESS_DESC: "Ermöglicht das ordnungsgemäße Funktionieren von Monos",
+    SETUP_BASIC_ACCESS_DESC: "Ermöglicht das ordnungsgemäße Funktionieren von Voyager",
     SETUP_LOCATION_ACCESS: "Standortzugriff",
     SETUP_LOCATION_ACCESS_DESC: "Ermöglicht Wetter und personalisierte Ergebnisse",
     SETUP_NOTIFICATIONS: "Benachrichtigungen",
     SETUP_NOTIFICATIONS_DESC: "Ermöglicht Updates und Timer-Benachrichtigungen",
-    SETUP_CANNIBALIZE: "Monos anpassen",
+    SETUP_CANNIBALIZE: "Voyager anpassen",
     SETUP_CLOCK_FORMAT: "Uhrenformat",
     SETUP_SHOW_SECONDS: "Sekunden anzeigen",
     SETUP_HIDE_SECONDS: "Sekunden ausblenden",
@@ -345,13 +345,13 @@ const LANG_DE = {
     GURAPP_DELETE_STORE_DENIED: "Der App Store kann nicht gelöscht werden",
     GURAPP_INSTALLING: "Installiere {appName}",
     GURAPP_INSTALL_EXISTS: "{appName} ist bereits installiert",
-    GURAPP_INSTALL_NONSTORE_DENIED: "Fehler: Nur der Monos App Store kann Apps installieren"
+    GURAPP_INSTALL_NONSTORE_DENIED: "Fehler: Nur der Voyager App Store kann Apps installieren"
 };
 
 const LANG_FR = {
-    GREETING: "Monos chargé avec succès",
-    LICENCE: "Monos est créé par kirbIndustries, et est sous licence CC BY-NC 4.0",
-    WELCOME_MESSAGE: "Bonjour, bienvenue sur Monos!",
+    GREETING: "Voyager chargé avec succès",
+    LICENCE: "Voyager est créé par kirbIndustries, et est sous licence CC BY-NC 4.0",
+    WELCOME_MESSAGE: "Bonjour, bienvenue sur Voyager!",
     PLACEHOLDER_MESSAGE: "Tapez votre message",
     SEND: "Envoyer",
     VOICE: "Voix",
@@ -397,7 +397,7 @@ const LANG_FR = {
     WALLPAPER_HISTORY_FAIL: "Impossible de sauvegarder l'historique des fonds d'écran",
     ALL_WALLPAPER_REMOVE: "Tous les fonds d'écran supprimés",
     WALLPAPER_REMOVE: "Fond d'écran supprimé",
-    LOAD_SUCCESS: "Monoschargé avec succès",
+    LOAD_SUCCESS: "Voyagerchargé avec succès",
     NOT_FULLSCREEN: "Pas en plein écran",
     CLOCK_STYLE_FAILED: "Impossible de charger le style d'horloge",
     CHECK_WORDS: ['mis à jour', 'terminé', 'fait', 'succès', 'complété', 'prêt', 'avec succès', 'accepté', 'accepter', 'oui'],
@@ -422,12 +422,12 @@ const LANG_FR = {
     SETUP_OPEN_PRIVATE_DESC: "Vos données restent sur l'appareil à tout moment. Aucune donnée utilisateur n'est transférée à nos services.",
     SETUP_ALLOW_PERMISSIONS: "Autoriser les permissions",
     SETUP_BASIC_ACCESS: "Accès de base",
-    SETUP_BASIC_ACCESS_DESC: "Permet à Monosde fonctionner correctement",
+    SETUP_BASIC_ACCESS_DESC: "Permet à Voyagerde fonctionner correctement",
     SETUP_LOCATION_ACCESS: "Accès à la localisation",
     SETUP_LOCATION_ACCESS_DESC: "Permet la météo et les résultats personnalisés",
     SETUP_NOTIFICATIONS: "Notifications",
     SETUP_NOTIFICATIONS_DESC: "Permet les mises à jour et les alertes de minuterie",
-    SETUP_CANNIBALIZE: "Personnaliser votre Monos",
+    SETUP_CANNIBALIZE: "Personnaliser votre Voyager",
     SETUP_CLOCK_FORMAT: "Format de l'horloge",
     SETUP_SHOW_SECONDS: "Afficher les secondes",
     SETUP_HIDE_SECONDS: "Masquer les secondes",
@@ -461,13 +461,13 @@ const LANG_FR = {
     GURAPP_DELETE_STORE_DENIED: "L'App Store ne peut pas être supprimé",
     GURAPP_INSTALLING: "Installation de {appName}",
     GURAPP_INSTALL_EXISTS: "{appName} est déjà installé",
-    GURAPP_INSTALL_NONSTORE_DENIED: "Erreur : Seul le MonosApp Store peut installer des applications"
+    GURAPP_INSTALL_NONSTORE_DENIED: "Erreur : Seul le VoyagerApp Store peut installer des applications"
 };
 
 const LANG_ES = {
-    GREETING: "Monoscargado con éxito",
-    LICENCE: "Monoses creado por kirbIndustries y está licenciado bajo la Licencia Pública General de GNU, Versión 2.0 (GPL-2.0).",
-    WELCOME_MESSAGE: "¡Hola, bienvenido a Monos!",
+    GREETING: "Voyagercargado con éxito",
+    LICENCE: "Voyageres creado por kirbIndustries y está licenciado bajo la Licencia Pública General de GNU, Versión 2.0 (GPL-2.0).",
+    WELCOME_MESSAGE: "¡Hola, bienvenido a Voyager!",
     PLACEHOLDER_MESSAGE: "Escriba su mensaje",
     SEND: "Enviar",
     VOICE: "Voz",
@@ -513,7 +513,7 @@ const LANG_ES = {
     WALLPAPER_HISTORY_FAIL: "No se pudo guardar el historial del fondo de pantalla",
     ALL_WALLPAPER_REMOVE: "Todos los fondos de pantalla eliminados",
     WALLPAPER_REMOVE: "Fondo de pantalla eliminado",
-    LOAD_SUCCESS: "Monos cargado con éxito",
+    LOAD_SUCCESS: "Voyager cargado con éxito",
     NOT_FULLSCREEN: "No está en pantalla completa",
     CLOCK_STYLE_FAILED: "No se pudo cargar el estilo del reloj",
     CHECK_WORDS: ['actualizado', 'completo', 'listo', 'éxito', 'exitosamente', 'aceptado', 'aceptar', 'sí'],
@@ -538,12 +538,12 @@ const LANG_ES = {
     SETUP_OPEN_PRIVATE_DESC: "Tus datos permanecen en el dispositivo en todo momento. No se transfieren datos de usuario a nuestros servicios.",
     SETUP_ALLOW_PERMISSIONS: "Permitir permisos",
     SETUP_BASIC_ACCESS: "Acceso básico",
-    SETUP_BASIC_ACCESS_DESC: "Permite que Monos funcione correctamente",
+    SETUP_BASIC_ACCESS_DESC: "Permite que Voyager funcione correctamente",
     SETUP_LOCATION_ACCESS: "Acceso a la ubicación",
     SETUP_LOCATION_ACCESS_DESC: "Permite el clima y los resultados personalizados",
     SETUP_NOTIFICATIONS: "Notificaciones",
     SETUP_NOTIFICATIONS_DESC: "Permite actualizaciones y alertas de temporizador",
-    SETUP_CANNIBALIZE: "Personaliza tu Monos",
+    SETUP_CANNIBALIZE: "Personaliza tu Voyager",
     SETUP_CLOCK_FORMAT: "Formato del reloj",
     SETUP_SHOW_SECONDS: "Mostrar segundos",
     SETUP_HIDE_SECONDS: "Ocultar segundos",
@@ -577,13 +577,13 @@ const LANG_ES = {
     GURAPP_DELETE_STORE_DENIED: "La App Store no se puede eliminar",
     GURAPP_INSTALLING: "Instalando {appName}",
     GURAPP_INSTALL_EXISTS: "{appName} ya está instalada",
-    GURAPP_INSTALL_NONSTORE_DENIED: "Error: Solo la App Store de Monos puede instalar aplicaciones"
+    GURAPP_INSTALL_NONSTORE_DENIED: "Error: Solo la App Store de Voyager puede instalar aplicaciones"
 };
 
 const LANG_KO = {
-    GREETING: "Monos가 성공적으로 로드되었습니다",
-    LICENCE: "Monos는 kirbIndustries에서 제작되었으며 CC BY-NC 4.0에 따라 라이선스가 부여됩니다.",
-    WELCOME_MESSAGE: "안녕하세요, Monos에 오신 것을 환영합니다!",
+    GREETING: "Voyager가 성공적으로 로드되었습니다",
+    LICENCE: "Voyager는 kirbIndustries에서 제작되었으며 CC BY-NC 4.0에 따라 라이선스가 부여됩니다.",
+    WELCOME_MESSAGE: "안녕하세요, Voyager에 오신 것을 환영합니다!",
     PLACEHOLDER_MESSAGE: "메시지를 입력하세요",
     SEND: "보내기",
     VOICE: "음성",
@@ -629,7 +629,7 @@ const LANG_KO = {
     WALLPAPER_HISTORY_FAIL: "배경 화면 기록 저장에 실패했습니다",
     ALL_WALLPAPER_REMOVE: "모든 배경 화면이 제거되었습니다",
     WALLPAPER_REMOVE: "배경 화면이 제거되었습니다",
-    LOAD_SUCCESS: "Monos가 성공적으로 로드되었습니다",
+    LOAD_SUCCESS: "Voyager가 성공적으로 로드되었습니다",
     NOT_FULLSCREEN: "전체 화면이 아닙니다",
     CLOCK_STYLE_FAILED: "시계 스타일 로드에 실패했습니다",
     CHECK_WORDS: ['업데이트됨', '완료됨', '완료', '성공', '성공적으로', '수락됨', '수락', '예'],
@@ -654,12 +654,12 @@ const LANG_KO = {
     SETUP_OPEN_PRIVATE_DESC: "사용자 데이터는 항상 장치에 보관됩니다. 사용자 데이터는 서비스로 전송되지 않습니다.",
     SETUP_ALLOW_PERMISSIONS: "권한 허용",
     SETUP_BASIC_ACCESS: "기본 액세스",
-    SETUP_BASIC_ACCESS_DESC: "Monos가 제대로 작동하도록 합니다.",
+    SETUP_BASIC_ACCESS_DESC: "Voyager가 제대로 작동하도록 합니다.",
     SETUP_LOCATION_ACCESS: "위치 정보 액세스",
     SETUP_LOCATION_ACCESS_DESC: "날씨 및 맞춤형 결과를 활성화합니다.",
     SETUP_NOTIFICATIONS: "알림",
     SETUP_NOTIFICATIONS_DESC: "업데이트 및 타이머 알림을 활성화합니다.",
-    SETUP_CANNIBALIZE: "Monos를 사용자 정의",
+    SETUP_CANNIBALIZE: "Voyager를 사용자 정의",
     SETUP_CLOCK_FORMAT: "시계 형식",
     SETUP_SHOW_SECONDS: "초 표시",
     SETUP_HIDE_SECONDS: "초 숨기기",
@@ -693,13 +693,13 @@ const LANG_KO = {
     GURAPP_DELETE_STORE_DENIED: "앱 스토어는 삭제할 수 없습니다",
     GURAPP_INSTALLING: "{appName} 설치 중",
     GURAPP_INSTALL_EXISTS: "{appName}은(는) 이미 설치되어 있습니다",
-    GURAPP_INSTALL_NONSTORE_DENIED: "오류: Monos 앱 스토어만 앱을 설치할 수 있습니다"
+    GURAPP_INSTALL_NONSTORE_DENIED: "오류: Voyager 앱 스토어만 앱을 설치할 수 있습니다"
 };
 
 const LANG_ZH = {
-    GREETING: "Monos加载成功",
-    LICENCE: "Monos由kirbIndustries制作，CC BY-NC 4.0",
-    WELCOME_MESSAGE: "你好，欢迎来到Monos！",
+    GREETING: "Voyager加载成功",
+    LICENCE: "Voyager由kirbIndustries制作，CC BY-NC 4.0",
+    WELCOME_MESSAGE: "你好，欢迎来到Voyager！",
     PLACEHOLDER_MESSAGE: "输入您的消息",
     SEND: "发送",
     VOICE: "语音",
@@ -745,7 +745,7 @@ const LANG_ZH = {
     WALLPAPER_HISTORY_FAIL: "无法保存壁纸历史记录",
     ALL_WALLPAPER_REMOVE: "所有壁纸已删除",
     WALLPAPER_REMOVE: "壁纸已删除",
-    LOAD_SUCCESS: "Monos加载成功",
+    LOAD_SUCCESS: "Voyager加载成功",
     NOT_FULLSCREEN: "不是全屏",
     CLOCK_STYLE_FAILED: "无法加载时钟样式",
     CHECK_WORDS: ['已更新', '完成', '完成', '成功', '成功地', '已接受', '接受', '是'],
@@ -770,12 +770,12 @@ const LANG_ZH = {
     SETUP_OPEN_PRIVATE_DESC: "您的数据始终保留在设备上。用户数据不会传输到我们的任何服务。",
     SETUP_ALLOW_PERMISSIONS: "允许权限",
     SETUP_BASIC_ACCESS: "基本访问",
-    SETUP_BASIC_ACCESS_DESC: "使Monos正常工作",
+    SETUP_BASIC_ACCESS_DESC: "使Voyager正常工作",
     SETUP_LOCATION_ACCESS: "位置访问",
     SETUP_LOCATION_ACCESS_DESC: "启用天气和个性化结果",
     SETUP_NOTIFICATIONS: "通知",
     SETUP_NOTIFICATIONS_DESC: "启用更新和计时器提醒",
-    SETUP_CANNIBALIZE: "自定义您的Monos",
+    SETUP_CANNIBALIZE: "自定义您的Voyager",
     SETUP_CLOCK_FORMAT: "时钟格式",
     SETUP_SHOW_SECONDS: "显示秒数",
     SETUP_HIDE_SECONDS: "隐藏秒数",
@@ -809,5 +809,5 @@ const LANG_ZH = {
     GURAPP_DELETE_STORE_DENIED: "App Store 无法删除",
     GURAPP_INSTALLING: "正在安装 {appName}",
     GURAPP_INSTALL_EXISTS: "{appName} 已安装",
-    GURAPP_INSTALL_NONSTORE_DENIED: "错误：只有 Monos 应用商店才能安装应用"
+    GURAPP_INSTALL_NONSTORE_DENIED: "错误：只有 Voyager 应用商店才能安装应用"
 }
