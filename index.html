@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="/assets/img/favi/regular.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="description" content="Relax, work or take a sip of coffee and relax. Monos has customizability, privacy, powerful functions and more, packed in a lightweight dashboard.">
+    <meta name="keywords" content="Monos, smart home, customizable dashboard, UI design, technology, app management, smart control, personalized experience, open source, free, private">
+    <meta name="author" content="kirbIndustries">
+    <meta property="og:title" content="Monos — Powerful, private dashboard">
+    <meta property="og:description" content="Back to the basics. A simple dashboard, yet so powerful.">
+    <meta property="og:image" content="https://Monos.github.io/assets/marketing/hero2.png">
+    <meta property="og:url" content="https://Monos.github.io/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Monos — Powerful, private dashboard">
+    <meta name="twitter:description" content="Monos is a sleek, customizable dashboard for managing your apps and smart home with ease.">
+    <meta name="twitter:image" content="https://Monos.github.io/assets/marketing/hero2.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="manifest" href="/manifest.json">
+    <script src="js/lang.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+        import { joinRoom, selfId } from 'https://esm.sh/trystero@0.15.1/torrent';
+        window.Trystero = { joinRoom, selfId };
+        window.dispatchEvent(new Event('trystero-ready'));
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <meta name="theme-color" content="#1c1c1c">
+    <title>Monos</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
+    <script src="js/waves.js" defer></script>
+    <script>
+        // Boot
+        
+        (async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bootState = urlParams.get('s');
+            const hasSetup = localStorage.getItem('hasVisitedBefore') === 'true';
+
+            // Handle Boot Commands (?s=...)
+            if (bootState) {
+                console.log(`[Boot] State detected: ${bootState}`);
+                
+                if (bootState === 'oobe') {
+                    // Force Setup
+                    localStorage.removeItem('hasVisitedBefore');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } 
+                else if (bootState === 'nooobe') {
+                    // Skip Setup
+                    localStorage.setItem('hasVisitedBefore', 'true');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } 
+                else if (bootState === 'manage') {
+                    // Store URL for processing in index.js (to allow UI prompts)
+                    const scriptUrl = urlParams.get('url');
+                    if (scriptUrl) {
+                        window.pendingManageUrl = scriptUrl;
+                    }
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+                else {
+                    // Generic Case: ?s=[AppName] -> Open App
+                    // We implicitly mark setup as done to access the app
+                    localStorage.setItem('hasVisitedBefore', 'true');
+                    // Store the requested app name globally for index.js to pick up later
+                    window.pendingBootApp = bootState;
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+        })();
+
+        let FF_FOUC_FIX;
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+    
+        // Show a message if loading is slow
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const bootHelp = document.getElementById('boot-help');
+            if (loadingScreen && bootHelp) { // Check if loading is still happening
+                bootHelp.innerHTML = `
+                    Please wait...
+                `;
+            }
+        }, 5000); // 5 seconds
+    
+        // Catch crashes during load
+        window.MonosHasCrashed = false; // Global crash flag
+        window.onerror = function(message, source, lineno, colno, error) {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                window.MonosHasCrashed = true; // Set flag to prevent onload from hiding this
+    
+                // Force the loading screen to be visible and stop animations
+                loadingScreen.classList.remove('hidden');
+                loadingScreen.style.opacity = '1';
+                loadingScreen.style.transition = 'none';
+                loadingScreen.innerHTML = '';
+                loadingScreen.style.gap = '20px';
+    
+                const errorContainer = document.createElement('div');
+                errorContainer.style.textAlign = 'center';
+                errorContainer.style.fontFamily = 'monospace';
+                errorContainer.style.maxWidth = '90%';
+    
+                const errorMessage = error ? `${error.name}: ${error.message}` : message;
+    
+                errorContainer.innerHTML = `
+                    <h2 style="color: var(--text-color); font-family: 'Inter', sans-serif; margin-bottom: 20px;">
+                        Monos cannot load.<br>
+                        Monosを読み込めません。<br>
+                        Monos kann nicht geladen werden.<br>
+                        Monos no se puede cargar.<br>
+                        Monos을 로드할 수 없습니다.<br>
+                        Monos 无法加载。
+                    </h2>
+                    <pre style="color: #ff8a80; background: #222; padding: 10px; border-radius: 18px;">${errorMessage}</pre>
+                    <p style="color: var(--text-color); font-family: 'Inter', sans-serif; margin-top: 20px;">
+                        Open Recovery Mode at <a href="/recovery/" style="color: #82b1ff;">https://Monos.github.io/recovery/</a><br>
+                        Report this to our GitHub. <a href="https://github.com/Monos/Monos.github.io/issues" style="color: #82b1ff;">https://github.com/Monos/Monos.github.io/issues</a>
+                    </p>
+                `;
+
+                // Create Continue Anyway button
+                const continueButton = document.createElement('button');
+                continueButton.textContent = 'Continue Anyway';
+                continueButton.style.marginTop = '20px';
+                continueButton.style.padding = '10px 20px';
+                continueButton.style.fontSize = '16px';
+                continueButton.style.backgroundColor = 'var(--accent)';
+                continueButton.style.color = 'var(--background-color)';
+                continueButton.style.border = 'none';
+                continueButton.style.borderRadius = '50px';
+                continueButton.style.cursor = 'pointer';
+        
+                // Add click event to remove the loading screen
+                continueButton.addEventListener('click', () => {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.remove(); // Remove the loading screen from the DOM after fade-out
+                    }, 1000); // Match the fade-out time
+        
+                    // Optional: Handle any other recovery process if necessary
+                });
+        
+                // Append the error message and button to the loading screen
+                loadingScreen.appendChild(errorContainer);
+                loadingScreen.appendChild(continueButton);
+                
+                // Do not suppress default browser error handler
+            }
+        };
+
+        if ('locks' in navigator) {
+            navigator.locks.request('Monos_instance', { ifAvailable: true }, async (lock) => {
+                if (!lock) {
+                    // Lock is held by another tab. Stop execution and show error.
+                    document.documentElement.innerHTML = '';
+                    document.body.style.cssText = "margin:0;padding:0;display:flex;height:100vh;justify-content:center;align-items:center;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
+                    document.body.innerHTML = "<div style='text-align:center;'><h1>Monos is running</h1><p>Please use the existing tab.</p></div>";
+                    throw new Error("Monos is already running in another tab.");
+                }
+                // Hold the lock for the lifetime of this tab
+                return new Promise(() => {}); 
+            });
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+</head>
+<body>
+    <div id="loading-screen" class="loading-overlay">
+        <div id="boot-help" class="boot-help">F12 • Recovery</div>
+        <img src="/assets/img/icon.svg" alt="Monos Logo" class="loading-logo">
+        <div class="loading-spinner">
+            <svg width="24" height="24" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--text-color);">
+                <style>.spinner_V8m1{transform-origin:center;animation:spinner_zKoa 2s linear infinite}.spinner_V8m1 circle{stroke-linecap:round;animation:spinner_YpZS 1.5s ease-in-out infinite}@keyframes spinner_zKoa{100%{transform:rotate(360deg)}}@keyframes spinner_YpZS{0%{stroke-dasharray:0 150;stroke-dashoffset:0}47.5%{stroke-dasharray:42 150;stroke-dashoffset:-16}95%,100%{stroke-dasharray:42 150;stroke-dashoffset:-59}}</style>
+                <g class="spinner_V8m1"><circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle></g>
+            </svg>
+        </div>
+    </div>
+    
+    <script>
+        (function () {
+          const onKeyDown = (e) => {
+            if (e.code === 'F12' && !window.location.pathname.includes('/recovery/')) {
+              console.log('F12 detected. Redirecting to Safe Mode...');
+              window.onbeforeunload = null;
+              window.location.href = '/recovery/index.html';
+            }
+          };
+        
+          const onBootHelpClick = (e) => {
+            if (!window.location.pathname.includes('/recovery/')) {
+              console.log('.boot-help clicked. Redirecting to Safe Mode...');
+              window.onbeforeunload = null;
+              window.location.href = '/recovery/index.html';
+            }
+          };
+        
+          // Attach F12 recovery shortcut
+          window.addEventListener('keydown', onKeyDown, { capture: true });
+        
+          // Wait until DOM is ready before looking for `.boot-help`
+          document.addEventListener('DOMContentLoaded', () => {
+            const helpButton = document.querySelector('.boot-help');
+            if (helpButton) {
+              helpButton.addEventListener('click', onBootHelpClick, { once: true });
+            }
+          });
+        })();
+    </script>
+    
+    <svg style="display: none">
+        <filter id="edge-refraction-only" color-interpolation-filters="linearRGB" color-rendering="optimizeSpeed">
+            <feComposite operator="out"></feComposite>
+            <feComposite result="distMap"></feComposite>
+            <feDisplacementMap in="SourceGraphic" scale="15" result="pass1"></feDisplacementMap>
+            <feDisplacementMap in="SourceGraphic" scale="-15" in2="distMap"></feDisplacementMap>
+            <feBlend mode="darken" result="blended_image" in="pass1"></feBlend>
+            <feComponentTransfer in="blended_image">
+                <feFuncA slope="0.9" type="linear"></feFuncA>
+            </feComponentTransfer>
+        </filter>
+    </svg>
+
+    <noscript>You need to enable JavaScript to run Monos.<br>Monosを実行するにはJavaScriptを有効にする必要があります。<br>Sie müssen JavaScript aktivieren, um Monos auszuführen.<br>Necesitas habilitar JavaScript para ejecutar Monos.<br>Monos를 실행하려면 JavaScript를 활성화해야 합니다.<br>您需要启用JavaScript才能运行Monos。</noscript>
+    
+    <div class="drawer-handle">
+        <div class="drawer-pill">
+            <div class="nav-pill"></div>
+        </div>
+    </div>
+
+    <div id="one-button-nav-handle" style="display: none;">
+        <div class="nav-pill"></div>
+    </div>
+
+    <div id="split-screen-trigger" class="nav-btn-small"></div>
+
+    <div id="dynamic-area">
+        <div id="activity-island"></div>
+        <div id="persistent-clock" class="persistent-clock"></div>
+        <div id="status-indicator"></div>
+    </div>
+    
+    <div id="persistent-clock-quick-actions" class="persistent-clock-actions" style="display: none;">
+        <button id="quick-action-close" class="btn-qc">
+            <span class="material-symbols-rounded" style="font-size: 18px;">close</span>
+        </button>
+        <button id="quick-action-minimize" class="btn-qc">
+            <span class="material-symbols-rounded" style="font-size: 18px;">hide</span>
+        </button>
+        <button id="quick-action-controls" class="btn-qc">
+            <span class="material-symbols-rounded" style="font-size: 18px;">keyboard_arrow_left</span>
+        </button>
+    </div>
+
+    <div id="control-gesture-pane"></div>
+
+    <div id="depth-layer"></div>
+    
+    <div id="environment-layer"></div>
+    <div id="time-of-day-overlay"></div> 
+
+    <div id="wallpaper-switcher-overlay" class="wallpaper-switcher-overlay">
+        <div class="switcher-scroll-track" id="switcher-track">
+            <div class="switcher-scroll-thumb" id="switcher-thumb"></div>
+        </div>
+        <div class="wallpaper-cards-container" id="wallpaper-cards-container">
+            <!-- Cards injected via JS -->
+        </div>
+        <button id="switcher-add-btn" class="switcher-add-btn">
+            <span class="material-symbols-rounded">add</span> Add wallpaper
+        </button>
+    </div>
+
+    <div id="home-activity-container" class="pos-bl" style="display: none;">
+        <div id="home-media-widget" class="home-media-widget home-activity-item">
+            <img id="home-media-art" src="" alt="Album Art">
+            <div class="home-media-info">
+                <div id="home-media-title" class="title"></div>
+                <div id="home-media-artist" class="artist"></div>
+            </div>
+            
+            <button id="home-media-play-pause">
+                <span class="material-symbols-rounded" style="font-size: 28px; font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 48;">play_arrow</span>
+            </button>
+            
+            <div class="home-media-controls">
+                <button id="home-media-prev"><span class="material-symbols-rounded">fast_rewind</span></button>
+                <div id="home-media-progress-bar">
+                    <div style="display: flex;flex-direction: row;height: 16px;align-items: center;">
+                        <div id="home-media-progress"></div>
+                        <div style="z-index: 4;width: 6px;background-color: var(--text-color);border-radius: 16px;margin-right: 4px;flex-shrink: 0;height: 16px;margin-left: -6px;"></div>
+                        <div style="background: var(--search-background);width: 100%;height: 6px;border-radius: 10px;box-shadow: var(--sun-shadow);border: 1px solid var(--glass-border);"></div>
+                    </div>
+                </div>
+                <button id="home-media-next"><span class="material-symbols-rounded">fast_forward</span></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="info">
+            <div class="date" id="date"></div>
+        </div>
+        <div class="clock" id="clock"></div>
+        <div class="clockwidgets">
+            <div class="weather-widget" id="weather">
+                <span class="temperature" id="temperature"></span>
+                <span class="weather-icon" id="weather-icon">
+                    <svg width="24" height="24" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--text-color);">
+                        <style>.spinner_V8m1{transform-origin:center;animation:spinner_zKoa 2s linear infinite}.spinner_V8m1 circle{stroke-linecap:round;animation:spinner_YpZS 1.5s ease-in-out infinite}@keyframes spinner_zKoa{100%{transform:rotate(360deg)}}@keyframes spinner_YpZS{0%{stroke-dasharray:0 150;stroke-dashoffset:0}47.5%{stroke-dasharray:42 150;stroke-dashoffset:-16}95%,100%{stroke-dasharray:42 150;stroke-dashoffset:-59}}</style>
+                        <g class="spinner_V8m1"><circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle></g>
+                    </svg>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div id="widget-grid" class="widget-grid"></div>
+
+    <div id="customizeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="controls-container">
+                <h3 style="margin: 0; text-shadow: 0 0 2px var(--search-background);">LANG_CONTROLS</h3>
+                <div style="display: flex; gap: 12px;">
+                    <!-- Network Status Indicator -->
+                    <div id="network-status-indicator" class="status-qc">
+                        <span class="material-symbols-rounded" style="font-size: 20px;">signal_cellular_null</span>
+                    </div>
+                    <!-- Battery Status Indicator -->
+                    <div id="battery-status-indicator" class="status-qc">
+                        <span class="material-symbols-rounded" style="font-size: 26px; font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;">battery_android_question</span>
+                    </div>
+                    <div id="active-peers-container" style="display: none; align-items: center;"></div>
+                    <button id="fullscreen-btn" class="btn-qc" onclick="goFullscreen()">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">expand_content</span>
+                    </button>
+                </div>
+            </div>
+            <div class="quick-controls">
+                <div class="qcontrol-item" id="silent_switch_qc">
+                    <span class="material-symbols-rounded">notifications</span>
+                    <span class="qc-label">LANG_SILENT</span>
+                    <input type="checkbox" id="silent_switch" class="qc-switch" hidden="">
+                </div>
+                <div class="qcontrol-item" id="temp_control_qc">
+                        <span class="material-symbols-rounded">thermometer</span>
+                        <span class="qc-label">LANG_TONE</span>
+                        <span id="thermostat-value" style="display: none;">0</span>
+                    </div><div class="qcontrol-item" id="night-mode-qc">
+                        <span class="material-symbols-rounded">bedtime</span>
+                    </div>
+                <div class="qcontrol-item" id="minimal_mode_qc">
+                    <span class="material-symbols-rounded">filter_tilt_shift</span>
+                    <span class="qc-label">LANG_MINIMAL</span>
+                    <input type="checkbox" id="focus-switch" class="qc-switch" hidden="">
+                </div>
+                <div class="qcontrol-item" id="light_mode_qc">
+                    <span class="material-symbols-rounded">radio_button_partial</span>
+                    <span class="qc-label">LANG_DARKMODE</span>
+                    <input type="checkbox" id="theme-switch" class="qc-switch" hidden="">
+                </div><button id="blackout-btn" class="qcontrol-item">
+                    <span class="material-symbols-rounded" style="color: var(--text-color);">power_settings_new</span>
+                </button>
+            </div>
+            <div class="qc-sliders">
+                <div class="brightness-slider-container">
+                    <label for="brightness-control" class="cust-label">
+                        <span class="material-symbols-rounded" style="font-size: 20px;">sunny</span>
+                    </label>
+                    <input type="range" min="20" max="100" value="100" class="brightness-slider" id="brightness-control">
+                </div>
+            </div>
+            <div id="media-session-widget" class="media-widget" style="display: none;">
+                <img id="media-widget-art" src="" alt="Album Art">
+                <div class="app-icon-img">
+                    <img id="media-widget-app-icon" src="" class="media-widget-app-icon" style="display: none;" />
+                </div>
+                <div class="media-widget-device">
+                    <span class="material-symbols-rounded">brand_awareness</span>
+                    <span>This device</span>
+                </div>
+                <div class="media-widget-info">
+                    <div id="media-widget-title" class="title"></div>
+                    <div id="media-widget-artist" class="artist"></div>
+                </div>
+                <button id="media-widget-play-pause"><span class="material-symbols-rounded" style="font-size: 28px; color: var(--background-color); font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 48;">play_arrow</span></button>
+                <div class="media-widget-progress-container">
+                    <span id="media-widget-current-time" class="media-widget-time">0:00</span>
+                    <span id="media-widget-duration" class="media-widget-time">0:00</span>
+                </div>
+                <div class="media-widget-controls">
+                    <button id="media-widget-prev"><span class="material-symbols-rounded">fast_rewind</span></button>
+                    <div id="media-widget-progress-bar">
+                        <div style="display: flex;flex-direction: row;height: 16px;align-items: center;">
+                            <div id="media-widget-progress"></div>
+                            <div style="z-index: 4;width: 6px;background-color: var(--text-color);border-radius: 16px;margin-right: 4px;flex-shrink: 0;height: 16px;margin-left: -6px;"></div>
+                            <div style="background: var(--overlay-color);width: 100%;height: 6px;border-radius: 10px;box-shadow: var(--sun-shadow);border: 1px solid var(--glass-border);"></div>
+                        </div>
+                    </div>
+                    <button id="media-widget-next"><span class="material-symbols-rounded">fast_forward</span></button>
+                </div>
+            </div>
+            
+            <div class="notification-shade"></div>
+
+            <div class="settings-grid system-settings">
+                 <div class="setting-item" id="setting-animation">
+                    <div class="setting-icon-bg"><span class="material-symbols-rounded">animation</span></div>
+                    <span class="setting-label" data-lang-key="MOTION"></span>
+                </div>
+                <div class="setting-item" id="setting-contrast">
+                    <div class="setting-icon-bg"><span class="material-symbols-rounded">filter_b_and_w</span></div>
+                    <span class="setting-label" data-lang-key="CONTRAST"></span>
+                </div>
+                <div class="setting-item" id="setting-hour-format">
+                    <div class="setting-icon-bg"><span class="material-symbols-rounded">schedule</span></div>
+                    <span class="setting-label">12hr</span>
+                </div>
+                <div class="setting-item" id="setting-language">
+                    <div class="setting-icon-bg"><span class="material-symbols-rounded">language</span></div>
+                    <span class="setting-label" data-lang-key="LANGPICK"></span>
+                </div>
+            </div>
+            
+            <div class="settings-grid home-settings">
+                <div class="settings-grid general-home-settings" style="border-radius: 10px; display: none; content-visibility: hidden;">
+                    <div class="setting-item" id="setting-ai">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">auto_awesome</span></div>
+                        <span class="setting-label">GuraAI</span>
+                    </div>
+                    <div class="setting-item" id="setting-one-button-nav">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">arrow_selector_tool</span></div>
+                        <span class="setting-label" data-lang-key="ONE_BUTTON_NAV">Buttons</span>
+                    </div>
+                </div>
+                <!-- Background -->
+                <h4 style="margin: 10px;">Background</h4>
+                <div class="settings-grid add-settings">
+                    <div class="setting-item" id="setting-widgets">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">widget_menu</span></div>
+                        <span class="setting-label" data-lang-key="WIDGETS">Widgets</span>
+                    </div>
+                    <div class="setting-item" id="setting-wallpaper">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">filter_vintage</span></div>
+                        <span class="setting-label" data-lang-key="WALLPAPER"></span>
+                    </div>
+                    <div class="setting-item" id="setting-wallpaper-blur">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">motion_mode</span></div>
+                        <span class="setting-label" data-lang-key="BLUR">Blur</span>
+                    </div>
+                    <div class="setting-item" id="setting-wallpaper-brightness">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">wb_sunny</span></div>
+                        <span class="setting-label" data-lang-key="BRIGHTNESS">Brightness</span>
+                    </div>
+                    <div class="setting-item" id="setting-wallpaper-contrast-fx">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">opacity</span></div>
+                        <span class="setting-label" data-lang-key="CONTRAST_FX">Clarity</span>
+                    </div>
+                    <div class="setting-item" id="setting-live-environment">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">routine</span></div>
+                        <span class="setting-label">Live Scene</span>
+                    </div>
+                </div>
+                <!-- Looks -->
+                <h4 style="margin: 10px;">Looks</h4>
+                <div class="settings-grid looks-settings">
+                    <div class="setting-item" id="setting-style">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">match_case</span></div>
+                        <span class="setting-label" data-lang-key="STYLE">Style</span>
+                    </div>
+                    <div class="setting-item active" id="setting-clock-color">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">colorize</span></div>
+                        <span class="setting-label" data-lang-key="CLOCK_COLOR">Color</span>
+                    </div>
+                    <div class="setting-item" id="setting-clock-shadow">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">text_select_move_down</span></div>
+                        <span class="setting-label" data-lang-key="SHADOW">Shadow</span>
+                    </div>
+                    <div class="setting-item" id="setting-weight">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">line_weight</span></div>
+                        <span class="setting-label" data-lang-key="WEIGHT">Weight</span>
+                    </div>
+                    <div class="setting-item active" id="setting-roundness">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">line_curve</span></div>
+                        <span class="setting-label">Roundness</span>
+                    </div>
+                    <div class="setting-item" id="setting-text-case">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">text_fields</span></div>
+                        <span class="setting-label">Case</span>
+                    </div>
+                </div>
+                <!-- Composition -->
+                <h4 style="margin: 10px;">Composition</h4>
+                <div class="settings-grid composition-settings">
+                    <div class="setting-item active" id="setting-position">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">open_with</span></div>
+                        <span class="setting-label" data-lang-key="ALIGNMENT">Alignment</span>
+                    </div>
+                    <div class="setting-item active" id="setting-clock-stack">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">farsight_digital</span></div>
+                        <span class="setting-label" data-lang-key="CLOCK_STACK">Clock Stack</span>
+                    </div>
+                    <div class="setting-item active" id="setting-clock-spacing">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">space_bar</span></div>
+                        <span class="setting-label">Spacing</span>
+                    </div>
+                    <div class="setting-item active" id="setting-size">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">measuring_tape</span></div>
+                        <span class="setting-label">Clock Size</span>
+                    </div>
+                    <div class="setting-item active" id="setting-date-size">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">calendar_view_day</span></div>
+                        <span class="setting-label">Date Size</span>
+                    </div>
+                    <div class="setting-item" id="setting-date-offset">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">vertical_align_center</span></div>
+                        <span class="setting-label">Date Offset</span>
+                    </div>
+                </div>
+                <!-- Other -->
+                <h4 style="margin: 10px;">Other</h4>
+                <div class="settings-grid other-settings">
+                    <div class="setting-item" id="setting-format">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">edit_calendar</span></div>
+                        <span class="setting-label" data-lang-key="FORMAT">Format</span>
+                    </div>
+                    <div class="setting-item" id="setting-seconds">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">timer_10_select</span></div>
+                        <span class="setting-label" data-lang-key="SECONDS">Seconds</span>
+                    </div>
+                    <div class="setting-item active" id="setting-gurapps">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">grid_view</span></div>
+                        <span class="setting-label" data-lang-key="GURAPPS">Gurapps</span>
+                    </div>
+                    <div class="setting-item" id="setting-weather">
+                        <div class="setting-icon-bg"><span class="material-symbols-rounded">partly_cloudy_day</span></div>
+                        <span class="setting-label" data-lang-key="WEATHER">Weather</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="kirbindustries-ads-service" style="margin-top: 10px;background-color: var(--search-background);box-shadow: var(--sun-shadow);color: var(--text-color);padding: 10px 14px 10px 12px;border-radius: 35px;corner-shape: superellipse(1.5);z-index: 9999996;transition: opacity 0.5s;display: flex;align-items: center;gap: 12px;border: 1px solid var(--glass-border);">
+                <div id="kirbindustries-ads-service-img" class="app-icon-img" style="width: 42px;">
+                    <img src="/assets/appicon/default.png" class="media-widget-app-icon" style="display: block;">
+                </div>
+                <div style="display: flex;flex-direction: column;gap: 4px;">
+                    <div style="display: flex;align-items: center;gap: 6px;">
+                        <span style="font-size: 12px;background: var(--accent);color: var(--background-color);padding: 2px 6px;border-radius: 12px;">Suggested</span>
+                        <span id="kirbindustries-ads-service-icon" class="material-symbols-rounded" style="font-size: 18px;">question_mark</span>
+                        <span id="kirbindustries-ads-service-header" style="font-weight: 500;font-family: 'Inter';">???</span>
+                    </div>
+                    <span id="kirbindustries-ads-service-description">???</span>
+                </div>
+                <button id="kirbindustries-ads-service-cta" class="controls-footer-button" style="margin-left: auto;padding: 10px 12px 10px 15px;display: flex;gap: 4px;">
+                    Open
+                    <span class="material-symbols-rounded" style="font-size: 18px;">arrow_outward</span>
+                </button>
+            </div>
+            <div class="version-info">
+                <label class="cust-label" for="version-details">
+                    <img src="/assets/img/ver/16.png" alt="Monos 16" style="width: 24px; height: 24px; scale: 1.5;">
+                    <span style="margin-left: 4px;">version information</span>
+                </label>
+                <button id="versionButton">LANG_DETAIL_VERS</button>
+            </div> 
+            <div id="app-management-info" class="app-management-info" style="display: none;">
+                <label class="cust-label" id="current-app-label">
+                    <img src="" alt="App Icon" style="width: 32px; height: 32px; border-radius: 35%; corner-shape: superellipse(1.25); object-fit: cover;">
+                    <span>App Name</span>
+                </label>
+                <div style="display: flex; gap: 12px;">
+                    <button id="app-close-btn" class="btn-qc">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">close</span>
+                    </button>
+                    <button id="app-minimize-btn" class="btn-qc">
+                        <span class="material-symbols-rounded" style="font-size: 18px;">hide</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="widget-picker-drawer" class="widget-drawer">
+        <div class="widget-drawer-handle">
+            <div class="app-drawer-handle">
+                <div class="drawer-handle-bar"></div>
+            </div>
+        </div>
+        <div class="widget-drawer-header">
+            <h2>Add Widget</h2>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button id="add-sticker-btn" class="drawer-header-button">
+                    <span class="material-symbols-rounded">sticker</span>
+                    Sticker
+                </button>
+                <label for="widget-transparent-switch" style="font-size: 14px; color: var(--text-color); cursor: pointer;">Transparency</label>
+                <input type="checkbox" id="widget-transparent-switch">
+            </div>
+        </div>
+        <div class="widget-drawer-content">
+            <div id="widget-picker-grid">
+                <!-- Available widgets will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="wallpaper-picker-drawer" class="widget-drawer">
+        <div class="wallpaper-drawer-handle">
+            <div class="app-drawer-handle">
+                <div class="drawer-handle-bar"></div>
+            </div>
+        </div>
+        <div class="widget-drawer-header">
+            <h2 data-lang-key="WALLPAPER">Wallpaper</h2>
+            <div style="display: flex; gap: 15px;">
+                <button id="wallpaper-export-btn" class="drawer-header-button">
+                    <span class="material-symbols-rounded">ios_share</span>
+                    Export
+                </button>
+                <button id="wallpaper-submit-btn" class="drawer-header-button">
+                    <span class="material-symbols-rounded">person_raised_hand</span>
+                    Request
+                </button>
+            </div>
+        </div>
+        <div class="widget-drawer-content">
+            <div id="wallpaper-picker-grid">
+                <!-- Presets and upload option will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="thermostat-popup" class="thermostat-popup">
+        <div class="thermostat-popup-content">
+            <div class="thermostat-popup-header">
+                <span class="adjust-label">LANG_ADJUST</span>
+            </div>
+            <div class="thermostat-slider-container">
+                <input type="range" min="-10" max="10" value="0" class="thermostat-slider" id="thermostat-control">
+                <div id="thermostat-popup-value">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dock" class="dock"></div>
+    
+    <div class="blur-overlay" id="blurOverlay"></div>
+
+    <div class="blur-overlay" id="blurOverlayControls"></div>
+
+    <div id="app-drawer" class="app-drawer">
+        <div class="app-drawer-handle">
+            <div class="app-search-container"">
+                <span class="material-symbols-rounded">search</span>
+                <input type="text" id="app-search-input" placeholder="Search">
+            </div>
+            <div class="drawer-top-btn" id="sort-app-btn"><span class="material-symbols-rounded">sort</span></div>
+        </div>
+        <div class="app-drawer-content">
+            <div class="app-drawer-grid" id="app-grid"></div>
+        </div>
+    </div>
+
+    <!-- Will be removed -->
+    <div id="ai-assistant-overlay" class="ai-overlay"
+        <span>GuraAI is winding down and will be discontinued soon.</span>
+        <div id="ai-response-area"></div>
+        <div class="ai-search-bar">
+            <span id="ai-icon" class="material-symbols-rounded" style="cursor: default;">auto_awesome</span>
+            <input type="text" id="ai-input" placeholder="Ask, or describe a command" autocomplete="off">
+            <span id="ai-send-btn" class="material-symbols-rounded">arrow_upward</span>
+        </div>
+    </div>
+
+    <div id="snap-line-v" class="snap-line snap-line-v"></div>
+    <div id="snap-line-h" class="snap-line snap-line-h"></div>
+
+    <div id="app-switcher-overlay" style="display: none;">
+        <div id="app-switcher-list"></div>
+    </div>
+
+    <div id="interaction-blocker"></div>
+    
+    <div id="split-divider" style="display: none;">
+        <div class="split-handle-bar"></div>
+    </div>
+
+    <div id="dialogModal" class="modal">
+        <div class="modal-content">
+            <h2 id="dialogTitle"></h2>
+            <p id="dialogMessage"></p>
+            <div id="dialogPromptContainer" class="form-group" style="display: none;">
+                <input type="text" id="dialogInput" class="form-input">
+            </div>
+            <div id="dialogButtons" class="form-row">
+                <!-- Buttons will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="hidden-controls-container" style="display: none; content-visibility: hidden;">
+        <input type="range" id="screen-curve-slider" min="0" max="50">
+        <input type="file" id="wallpaperInput" accept=".png, .jpeg, .jpg, .webp, .gif, .mp4, .guraatmos" multiple>
+        <button id="uploadButton">Add</button>
+        <input type="range" min="0" max="20" value="0" class="wallpaper-effect-slider" id="wallpaper-blur-slider">
+        <input type="range" min="50" max="150" value="100" class="wallpaper-effect-slider" id="wallpaper-brightness-slider">
+        <input type="range" min="50" max="150" value="100" class="wallpaper-effect-slider" id="wallpaper-contrast-slider">
+        <input type="range" min="20" max="100" value="100" class="weight-slider" id="weight-slider">
+        <input type="range" min="0" max="100" value="0" class="roundness-slider" id="roundness-slider">
+        <input type="range" min="-50" max="50" value="0" id="clock-size-slider">
+        <input type="range" min="-5" max="20" value="0" id="clock-spacing-slider">
+        <select id="text-case-select">
+            <option value="none">Normal</option>
+            <option value="uppercase">UPPERCASE</option>
+            <option value="lowercase">lowercase</option>
+            <option value="capitalize">Capitalize</option>
+        </select>
+        <input type="range" min="50" max="200" value="100" id="date-size-slider">
+        <input type="range" min="-50" max="50" value="0" id="date-offset-slider">
+        <div id="position-controls-popup" class="control-popup-content">
+            <div class="popup-control-row">
+                <label for="clock-pos-x-slider">X</label>
+                <input type="range" min="0" max="100" value="50" id="clock-pos-x-slider">
+            </div>
+             <div class="popup-control-row">
+                <label for="clock-pos-y-slider">Y</label>
+                <input type="range" min="0" max="100" value="50" id="clock-pos-y-slider">
+            </div>
+            <div class="popup-control-row">
+                 <label for="alignment-select">Preset</label>
+                 <select id="alignment-select">
+                    <option value="center" data-lang-key="ALIGN_CENTER">Center</option>
+                    <option value="left" data-lang-key="ALIGN_LEFT">Left</option>
+                    <option value="right" data-lang-key="ALIGN_RIGHT">Right</option>
+                </select>
+            </div>
+        </div>
+        <div id="clock-color-popup" class="control-popup-content">
+            <div class="popup-control-row">
+                <label for="clock-color-switch">Solid Color</label>
+                <input type="checkbox" id="clock-color-switch">
+                <input type="color" id="clock-color-picker">
+            </div>
+            <div class="popup-control-row">
+                <label for="clock-gradient-switch">Gradient</label>
+                <input type="checkbox" id="clock-gradient-switch">
+                <input type="color" id="clock-gradient-color-picker">
+            </div>
+            <div class="popup-control-row">
+                <label for="clock-glass-switch">Glass</label>
+                <input type="checkbox" id="clock-glass-switch">
+            </div>
+        </div>
+        <div id="shadow-controls-popup" class="control-popup-content">
+            <div class="popup-control-row">
+                <label for="clock-shadow-switch">Shadow</label>
+                <input type="checkbox" id="clock-shadow-switch">
+            </div>
+            <div class="popup-control-row">
+                <label for="clock-shadow-blur-slider">Blur</label>
+                <input type="range" min="0" max="50" value="10" id="clock-shadow-blur-slider">
+            </div>
+            <div class="popup-control-row">
+                <label for="clock-shadow-color-picker">Color</label>
+                <input type="color" id="clock-shadow-color-picker">
+            </div>
+        </div>
+        <div id="format-popup" class="control-popup-content">
+            <div class="popup-control-row" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+                <label for="date-format-input" data-lang-key="DATE_FORMAT">Date Format</label>
+                <input type="text" id="date-format-input" placeholder="e.g., dddd, MMMM D" style="width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 12px; background: var(--transparent-color); border: 1px solid var(--glass-border); color: var(--text-color);">
+            </div>
+            <div class="popup-control-row" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+                <label for="clock-format-input" data-lang-key="CLOCK_FORMAT">Clock Format</label>
+                <input type="text" id="clock-format-input" placeholder="e.g., HH:mm:ss" style="width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 12px; background: var(--transparent-color); border: 1px solid var(--glass-border); color: var(--text-color);">
+            </div>
+        </div>
+        <input type="checkbox" id="seconds-switch" checked>
+        <input type="checkbox" id="clock-stack-switch">
+        <input type="checkbox" id="depth-effect-switch">
+        <input type="checkbox" id="live-environment-switch">
+        <select id="font-select">
+            <option value="Inter" data-lang="Default">LANG_DEFAULT</option>
+            <option value="Bricolage Grotesque" data-lang="Work">LANG_WORK</option>
+            <option value="DynaPuff" data-lang="Puffy">LANG_PUFFY</option>
+            <option value="Domine" data-lang="Classic">LANG_CLASSIC</option>
+            <option value="Climate Crisis" data-lang="Strokes">LANG_STROKES</option>
+            <option value="JetBrains Mono" data-lang="Mono">LANG_MONO</option>
+            <option value="DotGothic16" data-lang="Pixel">LANG_PIXEL</option>
+            <option value="Playpen Sans" data-lang="Written">LANG_WRITTEN</option>
+            <option value="Jaro" data-lang="Raised">LANG_RAISED</option>
+            <option value="Doto" data-lang="Dot">LANG_DOT</option>
+            <option value="Nunito" data-lang="Round">LANG_ROUND</option>
+        </select>
+        <input type="checkbox" id="weather-switch" checked>
+        <input type="checkbox" id="gurapps-switch" checked>
+        <input type="checkbox" id="tint-colors-switch" checked>
+        <input type="checkbox" id="animation-switch" checked>
+        <input type="checkbox" id="contrast-switch">
+        <select id="glass-effects-mode">
+            <option value="on">Liquid</option>
+            <option value="focused">Focused</option>
+            <option value="frosted">Frosted</option>
+            <option value="off">Off</option>
+        </select>
+        <input type="checkbox" id="hour-switch">
+        <input type="checkbox" id="ai-switch">
+        <input type="checkbox" id="one-button-nav-switch">
+        <input type="checkbox" id="persistent-indicator-switch">
+        <input type="checkbox" id="dock-pinned-switch">
+        <select id="wake-lock-mode-select">
+            <option value="modern">Modern</option>
+            <option value="legacy">Legacy</option>
+            <option value="disabled">Disabled</option>
+        </select>
+        <select id="language-switcher">
+            <option value="EN">English</option>
+            <option value="JP">日本語</option>
+            <option value="DE">Deutsch</option>
+            <option value="ES">Español</option>
+            <option value="KO">한국어</option>
+            <option value="ZH">中文</option>
+        </select>
+        <select id="ui-sound-mode">
+            <option value="silent_off">Off when Silent (Default)</option>
+            <option value="always_off">Always Off</option>
+            <option value="always_on">Always On</option>
+        </select>
+        <input type="checkbox" id="gurapp-sounds-switch" checked> 
+        <button id="resetButton">RESET_BTN</button>
+        <div id="sticker-settings-popup" class="control-popup-content">
+            <h4 style="margin: 0 0 10px 0; text-align: center;">New Sticker</h4>
+            
+            <input type="file" id="sticker-file-input" accept="image/png, image/jpeg, image/webp, image/gif" style="display: none;">
+            <button id="sticker-select-file-btn" class="button-dialog" style="margin-bottom: 10px;">Photo</button>
+            
+            <div class="popup-control-row">
+                <label for="sticker-border-switch">Border</label>
+                <input type="checkbox" id="sticker-border-switch">
+            </div>
+            
+            <div id="sticker-border-options" style="display: none; flex-direction: column; gap: 10px;">
+                <div class="popup-control-row">
+                    <label>Color</label>
+                    <input type="color" id="sticker-border-color" value="#ffffff">
+                </div>
+                <div class="popup-control-row">
+                    <label>Width</label>
+                    <input type="range" id="sticker-border-width" min="1" max="10" value="3">
+                </div>
+            </div>
+    
+            <button id="sticker-create-btn" class="button-dialog primary" style="margin-top: 10px;">Create Sticker</button>
+        </div>
+    </div>
+
+    <div id="screen-curve-overlay"></div>
+
+    <div id="app-switcher-ui" class="wallpaper-switcher-overlay">
+        <div class="wallpaper-cards-container" id="app-cards-container">
+            <!-- Cards injected via JS -->
+        </div>
+    </div>
+
+    <script src="js/index.js"></script>
+    <script src="js/extservice.js"></script>
+</body>
+</html>

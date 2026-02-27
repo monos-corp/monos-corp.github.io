@@ -1,0 +1,33 @@
+{
+  "name": "Monos",
+  "short_name": "Monos",
+  "categories": ["productivity", "utilities", "lifestyle", "entertainment", "business", "personalization"],
+  "scope": "/",
+  "start_url": "/",
+  "id": "index.html",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay"],
+  "launch_handler": "navigate-existing",
+  "background_color": "#1c1c1c",
+  "icons": [
+    {
+      "src": "/assets/img/pwaicon/regular.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/pwaicon/coloricon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/marketing/hero2.png",
+      "sizes": "1200x630",
+      "type": "image/png"
+    }
+  ]
+}

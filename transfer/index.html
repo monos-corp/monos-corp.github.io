@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monos - System Transfer</title>
+    <link rel="icon" href="/assets/appicon/transfer.png" type="image/png">
+    <script src="https://unpkg.com/fflate@0.8.0"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000000;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #bbdefb; /* Light blue for a neutral, tool-like feel */
+            margin-top: 0;
+        }
+        p {
+            line-height: 1.6;
+            color: #b0b0b0;
+        }
+        .card {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5em;
+            margin-top: 2em;
+            text-align: left;
+        }
+        .card h2 {
+            margin-top: 0;
+            color: #e0e0e0;
+        }
+        .actions {
+            margin-top: 2em;
+            display: grid;
+            gap: 1em;
+        }
+        button, .file-label {
+            padding: 12px 20px;
+            font-size: 1em;
+            font-weight: 500;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s, opacity 0.2s;
+            text-align: center;
+            display: inline-block;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-action {
+            background-color: #0d47a1;
+            color: white;
+            border-color: #0d47a1;
+        }
+        .btn-destructive {
+            background-color: #b71c1c;
+            color: white;
+            border-color: #b71c1c;
+        }
+        .btn-safe {
+            background-color: #1b5e20;
+            color: white;
+            border-color: #1b5e20;
+        }
+        #file-name {
+            display: block;
+            margin-top: 0.5em;
+            color: #9e9e9e;
+            font-style: italic;
+        }
+        #status {
+            margin-top: 1.5em;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #2a2a2a;
+            color: #a5d6a7;
+            min-height: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>System Transfer</h1>
+        <p>Use this tool to export your Monos data to a file, or import it on a new device or browser.</p>
+
+        <div class="card">
+            <h2>Export Data</h2>
+            <p>Create a <code>.guradata</code> file containing all your settings, wallpapers, app data, and AI chat history. Keep this file safe and secure.</p>
+            <button id="export-btn" class="btn-action">Create Transfer File</button>
+        </div>
+
+        <div class="card">
+            <h2>Import Data</h2>
+            <p>Import a <code>.guradata</code> file to restore your system. <strong>WARNING:</strong> This will overwrite all current data on this device. This action is irreversible.</p>
+            <input type="file" id="import-file" accept=".guradata" style="display: none;">
+            <label for="import-file" class="btn-action file-label">Choose .guradata File</label>
+            <span id="file-name">No file selected.</span>
+            <button id="import-btn" class="btn-destructive" disabled>Import and Overwrite System</button>
+        </div>
+
+        <div id="status">Ready.</div>
+        
+        <div class="actions">
+             <button id="return-home" class="btn-safe">Return to Monos</button>
+        </div>
+    </div>
+
+    <script>
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const importFileInput = document.getElementById('import-file');
+        const fileNameSpan = document.getElementById('file-name');
+        const statusDiv = document.getElementById('status');
+        const returnHomeBtn = document.getElementById('return-home');
+        
+        function logStatus(message, isError = false) {
+            console.log(message);
+            statusDiv.textContent = `> ${message}`;
+            statusDiv.style.color = isError ? '#ef9a9a' : '#a5d6a7';
+        }
+
+        // --- File & Blob Utilities ---
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        function base64ToBlob(dataUrl) {
+            const arr = dataUrl.split(',');
+            const mimeMatch = arr[0].match(/:(.*?);/);
+            if (!mimeMatch) throw new Error("Invalid Data URL");
+            const mime = mimeMatch[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
+        }
+
+        function downloadFile(content, fileName, contentType) {
+            const a = document.createElement("a");
+            const file = new Blob([content], { type: contentType });
+            a.href = URL.createObjectURL(file);
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        // --- IndexedDB Utilities ---
+        function openDb(dbName) {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+            });
+        }
+
+        async function streamStoreToZip(db, storeName, dbName, zipData) {
+            const tempRecords = [];
+            
+            // Step 1: Collect references while transaction is active
+            await new Promise((resolve, reject) => {
+                const transaction = db.transaction(storeName, 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.openCursor();
+                
+                request.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        // Blobs are just references here, so this is memory-safe
+                        tempRecords.push({ key: cursor.key, value: cursor.value });
+                        cursor.continue();
+                    } else {
+                        resolve();
+                    }
+                };
+                request.onerror = () => reject(request.error);
+            });
+
+            // Step 2: Process binary data after transaction is closed
+            for (let i = 0; i < tempRecords.length; i++) {
+                const rec = tempRecords[i];
+                let val = rec.value;
+                const recordPath = `idb/${dbName}/${storeName}/rec_${i}`;
+
+                if (val instanceof Blob) {
+                    zipData[`${recordPath}.bin`] = new Uint8Array(await val.arrayBuffer());
+                    val = { _type: 'bin_ref', mime: val.type };
+                } else if (val && val.blob instanceof Blob) {
+                    zipData[`${recordPath}.bin`] = new Uint8Array(await val.blob.arrayBuffer());
+                    // Keep the object, only swap the 'blob' property for a reference
+                    val = { ...val, blob: { _type: 'bin_ref', mime: val.blob.type } };
+                }
+
+                // Individual JSON files prevent RangeError: Invalid string length
+                zipData[`${recordPath}.json`] = fflate.strToU8(JSON.stringify({ 
+                    key: rec.key, 
+                    value: val 
+                }));
+            }
+            return tempRecords.length;
+        }
+
+        // --- External App Utilities ---
+        function getInstalledApps() {
+            try {
+                const apps = JSON.parse(localStorage.getItem('userInstalledApps') || '{}');
+                // Merge with default system apps if they aren't in LS (optional, based on system design)
+                // For now, we trust the LS list + standard system apps logic is usually handled by index.js
+                return Object.values(apps).map(app => app.url);
+            } catch (e) {
+                return [];
+            }
+        }
+
+        async function processExternalApp(url, action, payload = null) {
+            return new Promise((resolve) => {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = url;
+                
+                // Add to DOM to trigger load
+                document.body.appendChild(iframe);
+
+                const cleanup = () => {
+                    window.removeEventListener('message', messageHandler);
+                    if(document.body.contains(iframe)) document.body.removeChild(iframe);
+                };
+
+                // Timeout to prevent hanging
+                const timeout = setTimeout(() => {
+                    cleanup();
+                    resolve({ url, error: 'Timeout' });
+                }, 5000);
+
+                const messageHandler = (event) => {
+                    if (event.source !== iframe.contentWindow) return;
+                    
+                    // 1. Wait for Ready
+                    if (event.data.type === 'gurapp-ready' || event.data.type === 'gurasuraisu-api-present') {
+                        // Send Command
+                        iframe.contentWindow.postMessage({
+                            type: action,
+                            payload: payload
+                        }, '*');
+                    }
+
+                    // 2. Wait for Response
+                    if (event.data.type === 'admin-export-response' || event.data.type === 'admin-action-complete') {
+                        clearTimeout(timeout);
+                        cleanup();
+                        resolve(event.data);
+                    }
+                };
+
+                window.addEventListener('message', messageHandler);
+            });
+        }
+
+        function downloadBlob(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a); // Required for Firefox
+            a.click();
+            
+            // Cleanup
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 100);
+        }
+
+        // --- EXPORT LOGIC (ZIP) ---
+        async function handleExport() {
+            logStatus('Starting export (v2 - Binary)...');
+            const exportBtn = document.getElementById('export-btn');
+            exportBtn.disabled = true;
+
+            try {
+                // 1. Prepare Data Container
+                const zipData = {};
+                
+                // Meta info
+                const meta = { 
+                    version: "2.0", 
+                    timestamp: new Date().toISOString(),
+                    type: "guradata_zip"
+                };
+                zipData['meta.json'] = fflate.strToU8(JSON.stringify(meta));
+
+                // 2. LocalStorage
+                const lsData = { ...localStorage };
+                zipData['localStorage.json'] = fflate.strToU8(JSON.stringify(lsData));
+                logStatus('Settings collected.');
+
+                // 3. IndexedDB
+                const dbs = await indexedDB.databases();
+                
+                for (const dbInfo of dbs) {
+                    const dbName = dbInfo.name;
+                    logStatus(`Saving data: ${dbName}...`);
+                    
+                    try {
+                        const db = await openDb(dbName);
+                        const storeNames = Array.from(db.objectStoreNames);
+                        const schemaInfo = [];
+                        
+                        for (const storeName of storeNames) {
+                            // Extract Schema
+                            const tx = db.transaction(storeName, 'readonly');
+                            const store = tx.objectStore(storeName);
+                            schemaInfo.push({
+                                name: store.name,
+                                keyPath: store.keyPath,
+                                autoIncrement: store.autoIncrement,
+                                indexes: Array.from(store.indexNames).map(n => {
+                                    const i = store.index(n);
+                                    return { name: i.name, keyPath: i.keyPath, unique: i.unique };
+                                })
+                            });
+                            
+                            // Stream Data directly into zipData object
+                            await streamStoreToZip(db, storeName, dbName, zipData);
+                        }
+                        
+                        zipData[`idb/${dbName}/_schema.json`] = fflate.strToU8(JSON.stringify(schemaInfo));
+                        db.close();
+                    } catch (e) { console.warn(e); }
+                }
+
+                // 4. External Apps (File-per-app streaming)
+                const appUrls = getInstalledApps().filter(url => {
+                    try {
+                        const appOrigin = new URL(url, window.location.origin).origin;
+                        // Only export if origin is different; same-origin data is already captured locally.
+                        return appOrigin !== window.location.origin;
+                    } catch(e) { return false; }
+                });
+                
+                if (appUrls.length > 0) {
+                    logStatus(`Backing up ${appUrls.length} external apps...`);
+                    for (const url of appUrls) {
+                        logStatus(`Contacting ${url}...`);
+                        const result = await processExternalApp(url, 'admin-export');
+                        
+                        if (result.data) {
+                            const appFolder = `apps/${btoa(url)}`;
+                            
+                            // 1. LocalStorage
+                            if (result.data.localStorage) {
+                                zipData[`${appFolder}/localStorage.json`] = fflate.strToU8(JSON.stringify(result.data.localStorage));
+                            }
+
+                            // 2. IndexedDB (Record-by-record streaming into ZIP)
+                            if (result.data.indexedDB) {
+                                for (const dbName in result.data.indexedDB) {
+                                    const db = result.data.indexedDB[dbName];
+                                    
+                                    // Save schemas
+                                    zipData[`${appFolder}/idb/${dbName}/_schema.json`] = fflate.strToU8(JSON.stringify(db.storeInfo));
+
+                                    for (const sName in db.stores) {
+                                        const records = db.stores[sName];
+                                        for (let i = 0; i < records.length; i++) {
+                                            const rec = records[i];
+                                            let val = rec.value;
+                                            const recordPath = `${appFolder}/idb/${dbName}/${sName}/rec_${i}`;
+
+                                            // Process Blobs from external apps
+                                            if (val instanceof Blob) {
+                                                zipData[`${recordPath}.bin`] = new Uint8Array(await val.arrayBuffer());
+                                                val = { _type: 'bin_ref', mime: val.type };
+                                            } else if (val && val.blob instanceof Blob) {
+                                                zipData[`${recordPath}.bin`] = new Uint8Array(await val.blob.arrayBuffer());
+                                                val = { ...val, blob: { _type: 'bin_ref', mime: val.blob.type } };
+                                            }
+
+                                            // Save individual record
+                                            zipData[`${recordPath}.json`] = fflate.strToU8(JSON.stringify({
+                                                key: rec.key,
+                                                value: val
+                                            }));
+                                        }
+                                    }
+                                }
+                            }
+                            // We no longer save a giant data.json for the app. 
+                            // The individual files above handle everything safely.
+                        }
+                    }
+                }
+
+                // 5. Compress
+                logStatus('Compressing archive...');
+                
+                // Use async zip to prevent freezing UI on large files
+                fflate.zip(zipData, { level: 1 }, (err, data) => {
+                    if (err) throw err;
+                    
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    const fileName = `Monos_backup_${timestamp}.guradata`;
+                    const blob = new Blob([data], { type: 'application/zip' });
+                    
+                    downloadBlob(blob, fileName);
+                    logStatus('Export Complete! Download started.');
+                    exportBtn.disabled = false;
+                });
+
+            } catch (error) {
+                logStatus(`Export failed: ${error.message}`, true);
+                exportBtn.disabled = false;
+                console.error(error);
+            }
+        }
+
+        // --- IMPORT LOGIC
+        async function handleImport() {
+            if (!importFileInput.files || importFileInput.files.length === 0) return;
+            const file = importFileInput.files[0];
+
+            if (!confirm("OVERWRITE SYSTEM?\n\nThis will replace all data. This cannot be undone.")) return;
+
+            // Check signature
+            const headerBlob = file.slice(0, 4);
+            const headerBuffer = await headerBlob.arrayBuffer();
+            const header = new Uint8Array(headerBuffer);
+            
+            // PK signature for ZIP is 0x50 0x4B 0x03 0x04
+            const isZip = header[0] === 0x50 && header[1] === 0x4B;
+
+            if (isZip) {
+                await handleZipImport(file);
+            } else {
+                throw new Error('Not vaild file');
+            }
+        }
+
+        async function handleZipImport(file) {
+            logStatus('Reading archive...');
+            
+            try {
+                const buffer = new Uint8Array(await file.arrayBuffer());
+                
+                // Unzip all files into memory structure
+                const unzipped = fflate.unzipSync(buffer);
+                
+                // 1. Wipe Data
+                logStatus('Clearing current system data...');
+                localStorage.clear();
+                const currentDBs = await indexedDB.databases();
+                for (const dbInfo of currentDBs) {
+                    await new Promise(r => { 
+                        const req = indexedDB.deleteDatabase(dbInfo.name); 
+                        req.onsuccess = r; req.onerror = r; 
+                    });
+                }
+
+                // 2. Restore LocalStorage
+                if (unzipped['localStorage.json']) {
+                    const str = fflate.strFromU8(unzipped['localStorage.json']);
+                    const lsData = JSON.parse(str);
+                    for (const k in lsData) localStorage.setItem(k, lsData[k]);
+                }
+
+                // 3. Restore IndexedDB
+                // Identify databases by schema files
+                const dbSchemas = Object.keys(unzipped).filter(k => k.startsWith('indexedDB/') && k.endsWith('/schema.json'));
+                
+                for (const schemaPath of dbSchemas) {
+                    const dbName = schemaPath.split('/')[1];
+                    logStatus(`Restoring DB: ${dbName}...`);
+                    
+                    const schemaStr = fflate.strFromU8(unzipped[schemaPath]);
+                    const schemaInfo = JSON.parse(schemaStr);
+                    
+                    // Create DB & Stores
+                    const request = indexedDB.open(dbName);
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        schemaInfo.forEach(s => {
+                            if (!db.objectStoreNames.contains(s.name)) {
+                                const opts = {};
+                                if (s.keyPath) opts.keyPath = s.keyPath;
+                                if (s.autoIncrement) opts.autoIncrement = s.autoIncrement;
+                                const store = db.createObjectStore(s.name, opts);
+                                
+                                if (s.indexes) {
+                                    s.indexes.forEach(i => {
+                                        try { store.createIndex(i.name, i.keyPath, { unique: i.unique, multiEntry: i.multiEntry }); } catch(e){}
+                                    });
+                                }
+                            }
+                        });
+                    };
+                    
+                    const db = await new Promise((res, rej) => {
+                        request.onsuccess = () => res(request.result);
+                        request.onerror = () => rej(request.error);
+                    });
+
+                    // Restore Data
+                    const tx = db.transaction(schemaInfo.map(s => s.name), 'readwrite');
+                    
+                    for (const s of schemaInfo) {
+                        const dataPath = `indexedDB/${dbName}/${s.name}.json`;
+                        if (!unzipped[dataPath]) continue;
+                        
+                        const records = JSON.parse(fflate.strFromU8(unzipped[dataPath]));
+                        const store = tx.objectStore(s.name);
+                        
+                        for (const rec of records) {
+                            let val = rec.value;
+                            
+                            // Reconstruct Blobs from references
+                            if (val && val.blob && val.blob._type === 'blob_ref') {
+                                const ref = val.blob;
+                                const fileData = unzipped[ref.path];
+                                if (fileData) {
+                                    val.blob = new Blob([fileData], { type: ref.mime });
+                                }
+                            } else if (val && val._type === 'blob_ref') {
+                                const fileData = unzipped[val.path];
+                                if (fileData) {
+                                    val = new Blob([fileData], { type: val.mime });
+                                }
+                            }
+
+                            if (s.keyPath) {
+                                store.put(val);
+                            } else {
+                                store.put(val, rec.key);
+                            }
+                        }
+                    }
+                    
+                    await new Promise(r => { tx.oncomplete = r; tx.onerror = r; });
+                    db.close();
+                }
+
+                // 4. Restore Apps (Reconstruct from file-system structure)
+                const appFolders = [...new Set(Object.keys(unzipped)
+                    .filter(k => k.startsWith('apps/'))
+                    .map(k => k.split('/').slice(0, 2).join('/')))];
+
+                if (appFolders.length > 0) {
+                    logStatus(`Restoring ${appFolders.length} cross-origin apps...`);
+                    for (const folder of appFolders) {
+                        const url = atob(folder.split('/')[1]);
+                        logStatus(`Restoring ${url}...`);
+
+                        const appPayload = { localStorage: {}, indexedDB: {} };
+
+                        // Restore LocalStorage
+                        if (unzipped[`${folder}/localStorage.json`]) {
+                            appPayload.localStorage = JSON.parse(fflate.strFromU8(unzipped[`${folder}/localStorage.json`]));
+                        }
+
+                        // Identify DBs in this app
+                        const appDBs = [...new Set(Object.keys(unzipped)
+                            .filter(k => k.startsWith(`${folder}/idb/`))
+                            .map(k => k.split('/')[3]))];
+
+                        for (const dbName of appDBs) {
+                            const schemaFile = unzipped[`${folder}/idb/${dbName}/_schema.json`];
+                            if (!schemaFile) continue;
+
+                            const storeInfo = JSON.parse(fflate.strFromU8(schemaFile));
+                            appPayload.indexedDB[dbName] = { stores: {}, storeInfo: storeInfo };
+
+                            for (const s of storeInfo) {
+                                const sName = s.name;
+                                const records = [];
+                                const recordFiles = Object.keys(unzipped).filter(k => 
+                                    k.startsWith(`${folder}/idb/${dbName}/${sName}/`) && k.endsWith('.json')
+                                );
+
+                                for (const rFile of recordFiles) {
+                                    try {
+                                        const rec = JSON.parse(fflate.strFromU8(unzipped[rFile]));
+                                        const binFile = unzipped[rFile.replace('.json', '.bin')];
+
+                                        if (binFile) {
+                                            // Depth-first binary reconstruction
+                                            if (rec.value && typeof rec.value === 'object') {
+                                                if (rec.value._type === 'bin_ref') {
+                                                    rec.value = new Blob([binFile], { type: rec.value.mime });
+                                                } else if (rec.value.blob && rec.value.blob._type === 'bin_ref') {
+                                                    rec.value.blob = new Blob([binFile], { type: rec.value.blob.mime });
+                                                }
+                                            }
+                                        }
+                                        // Ensure we pass an object with {key, value}
+                                        if (rec.key !== undefined) {
+                                            records.push(rec);
+                                        }
+                                    } catch (e) { console.error("Failed to parse record", rFile, e); }
+                                }
+                                appPayload.indexedDB[dbName].stores[sName] = records;
+                            }
+                        }
+
+                        await processExternalApp(url, 'admin-import', appPayload);
+                    }
+                }
+
+                logStatus('Import complete! Redirecting...');
+                setTimeout(() => window.location.href = '/', 1000);
+
+            } catch (e) {
+                logStatus(`ZIP Import Error: ${e.message}`, true);
+                console.error(e);
+            }
+        }
+        
+        // --- Event Listeners ---
+        exportBtn.addEventListener('click', handleExport);
+        importBtn.addEventListener('click', handleImport);
+
+        importFileInput.addEventListener('change', () => {
+            if (importFileInput.files.length > 0) {
+                fileNameSpan.textContent = importFileInput.files[0].name;
+                importBtn.disabled = false;
+            } else {
+                fileNameSpan.textContent = 'No file selected.';
+                importBtn.disabled = true;
+            }
+        });
+
+        returnHomeBtn.addEventListener('click', () => {
+            logStatus('Redirecting to main page...');
+            window.location.href = '/';
+        });
+
+    </script>
+</body>
+</html>
