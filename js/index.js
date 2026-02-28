@@ -679,7 +679,7 @@ async function updateSystemVersionUI() {
     // Update System Info Label
     const infoLabel = document.querySelector('.version-info span');
     if (infoLabel) {
-        infoLabel.textContent = `Ono UI ${version}`;
+        infoLabel.textContent = `Voyager: Ono UI ${version}`;
     }
 }
 
